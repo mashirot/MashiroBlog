@@ -1,12 +1,20 @@
-package ski.mashiro.entity;
+package ski.mashiro.security;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ski.mashiro.entity.Admin;
 
 import java.util.Collection;
 
+/**
+ * @author MashiroT
+ */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SecurityUser implements UserDetails {
 
     private Admin admin;

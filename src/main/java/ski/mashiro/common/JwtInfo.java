@@ -3,5 +3,5 @@ package ski.mashiro.common;
 /**
  * @author MashiroT
  */
-public record AdminInfo(Long id, String username) {
+public record JwtInfo(String jwtId, Long id, String username) {
 }

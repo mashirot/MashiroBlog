@@ -1,7 +1,10 @@
 package ski.mashiro.exception;
 
-public class CustomerSecurityException extends RuntimeException{
-    public CustomerSecurityException(String message) {
+/**
+ * @author MashiroT
+ */
+public class SecurityException extends RuntimeException{
+    public SecurityException(String message) {
         super(message);
     }
 }

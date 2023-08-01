@@ -1,0 +1,30 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: MashiroBlog
+  datasource:
+    url: jdbc:mysql://192.168.2.101:3306/blog
+    username: root
+    password: 123456
+  data:
+    redis:
+      host: 192.168.2.101
+      port: 6379
+      username: default
+      password: 123456
+      database: 3
+  rabbitmq:
+    host: 192.168.2.101
+    port: 5672
+    username: root
+    password: 123456
+    virtual-host: /
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: assign_id
+logging:
+  level:
+    ski.mashiro: info
+    ski.mashiro.mapper: debug

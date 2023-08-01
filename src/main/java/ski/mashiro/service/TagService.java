@@ -6,5 +6,5 @@ import ski.mashiro.entity.Tag;
 /**
  * @author MashiroT
  */
-public interface TagMapper extends IService<Tag> {
+public interface TagService extends IService<Tag> {
 }

@@ -2,13 +2,13 @@ package ski.mashiro.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import ski.mashiro.entity.Admin;
-import ski.mashiro.mapper.AdminMapper;
-import ski.mashiro.service.AdminService;
+import ski.mashiro.entity.Tag;
+import ski.mashiro.mapper.TagMapper;
+import ski.mashiro.service.TagService;
 
 /**
  * @author MashiroT
  */
 @Service
-public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements AdminService {
+public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagService {
 }
