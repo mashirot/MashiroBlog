@@ -25,6 +25,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
+        response.setStatus(403);
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.getWriter().write(objectMapper.writeValueAsString(Result.failed(StatusConstant.ACCESS_DENIED, "无权访问")));

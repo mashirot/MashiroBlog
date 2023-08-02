@@ -25,6 +25,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+        response.setStatus(401);
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.getWriter().write(objectMapper.writeValueAsString(Result.failed(StatusConstant.LOGIN_FAILED, "认证失败，请登陆")));
