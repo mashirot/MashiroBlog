@@ -7,7 +7,7 @@ import ski.mashiro.dto.AdminLoginDTO;
 /**
  * @author MashiroT
  */
-public interface UserAuthService {
+public interface AdminAuthService {
     Result<AdminDTO> login(AdminLoginDTO adminLoginDTO);
 
     Result<String> logout();

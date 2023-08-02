@@ -13,7 +13,7 @@ import ski.mashiro.dto.AdminDTO;
 import ski.mashiro.dto.AdminLoginDTO;
 import ski.mashiro.entity.Admin;
 import ski.mashiro.security.SecurityUser;
-import ski.mashiro.service.UserAuthService;
+import ski.mashiro.service.AdminAuthService;
 import ski.mashiro.utils.JwtUtils;
 
 import java.util.Map;
@@ -27,12 +27,12 @@ import static ski.mashiro.constant.StatusConstant.*;
  * @author MashiroT
  */
 @Service
-public class UserAuthServiceImpl implements UserAuthService {
+public class AdminAuthServiceImpl implements AdminAuthService {
 
     private final AuthenticationManager authenticationManager;
     private final StringRedisTemplate redisTemplate;
 
-    public UserAuthServiceImpl(AuthenticationManager authenticationManager, StringRedisTemplate redisTemplate) {
+    public AdminAuthServiceImpl(AuthenticationManager authenticationManager, StringRedisTemplate redisTemplate) {
         this.authenticationManager = authenticationManager;
         this.redisTemplate = redisTemplate;
     }
