@@ -40,6 +40,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
 //                                路径配置
                                 .requestMatchers(HttpMethod.POST, "/admin/login").anonymous()
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        new String[]{
+                                                "/info",
+                                                "/article/**",
+                                                "/tag/**",
+                                                "/category/**",
+                                        }
+                                ).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
