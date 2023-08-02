@@ -22,6 +22,6 @@ public class Comment {
     //    0:普通 1:私密
     private Integer secret;
     //    0:普通 1:删除
-    private Integer delete;
+    private Integer isDelete;
     private LocalDateTime createTime;
 }
