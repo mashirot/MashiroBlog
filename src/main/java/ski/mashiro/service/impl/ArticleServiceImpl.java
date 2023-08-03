@@ -1,6 +1,7 @@
 package ski.mashiro.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
@@ -48,7 +49,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Result<String> addArticle(ArticleDTO articleDTO) {
+    public Result<String> insArticle(ArticleDTO articleDTO) {
         if (Objects.isNull(articleDTO) || Objects.isNull(articleDTO.getTitle()) || Objects.isNull(articleDTO.getContent())) {
             return Result.failed(ARTICLE_INSERT_FAILED, "非法参数");
         }
@@ -57,7 +58,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         article.setAuthorId(jwtInfo.id());
         article.setTitle(articleDTO.getTitle());
         article.setContent(articleDTO.getContent());
-        article.setDelete(false);
+        article.setDeleted(false);
         LocalDateTime now = LocalDateTime.now();
         article.setCreateTime(now);
         article.setUpdateTime(now);
@@ -81,13 +82,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (Objects.isNull(articleDTO) || Objects.isNull(articleDTO.getId())) {
             return Result.failed(ARTICLE_DELETE_FAILED, "非法参数");
         }
-        Article article = getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, articleDTO.getId()).eq(Article::getDelete, false));
+        Article article = getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, articleDTO.getId()).eq(Article::getDeleted, false));
         if (Objects.isNull(article)) {
             return Result.failed(ARTICLE_DELETE_FAILED, "删除失败，Article不存在");
         }
-        article.setDelete(true);
-        article.setUpdateTime(LocalDateTime.now());
-        updateById(article);
+        update(new LambdaUpdateWrapper<Article>()
+                .set(Article::getDeleted, true)
+                .set(Article::getUpdateTime, LocalDateTime.now())
+                .eq(Article::getId, article.getId())
+        );
         articleTagService.remove(new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getArticleId, article.getId()));
         articleCategoryService.remove(new LambdaQueryWrapper<ArticleCategory>().eq(ArticleCategory::getArticleId, article.getId()));
         return Result.success(ARTICLE_DELETE_SUCCESS, null);
@@ -99,7 +102,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (Objects.isNull(articleDTO) || Objects.isNull(articleDTO.getId()) || Objects.isNull(articleDTO.getTitle()) || Objects.isNull(articleDTO.getContent())) {
             return Result.failed(ARTICLE_UPDATE_FAILED, "非法参数");
         }
-        Article article = getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, articleDTO.getId()).eq(Article::getDelete, false));
+        Article article = getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, articleDTO.getId()).eq(Article::getDeleted, false));
         if (Objects.isNull(article)) {
             return Result.failed(ARTICLE_UPDATE_FAILED, "删除失败，Article不存在");
         }
@@ -129,7 +132,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (Objects.isNull(articleId)) {
             return Result.failed(ARTICLE_SELECT_FAILED, "非法参数");
         }
-        Article article = getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, articleId).eq(Article::getDelete, false));
+        Article article = getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, articleId).eq(Article::getDeleted, false));
         if (Objects.isNull(article)) {
             return Result.failed(ARTICLE_SELECT_FAILED, "Article不存在");
         }
@@ -144,8 +147,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public Result<Page<ArticlePreviewDTO>> pagePreview(Long page, Long pageSize) {
+        if (Objects.isNull(page) || Objects.isNull(pageSize)) {
+            return Result.failed(ARTICLE_SELECT_FAILED, "非法参数");
+        }
         Page<Article> articlePage = new Page<>(page, pageSize);
-        page(articlePage, new LambdaQueryWrapper<Article>().eq(Article::getDelete, false).orderByDesc(Article::getCreateTime));
+        page(articlePage, new LambdaQueryWrapper<Article>().eq(Article::getDeleted, false).orderByDesc(Article::getCreateTime));
         Page<ArticlePreviewDTO> dtoPage = new Page<>();
         BeanUtils.copyProperties(articlePage, dtoPage, "records");
         dtoPage.setRecords(articlePage.getRecords().stream().map(this::getPreviewDTOByArticle).toList());
@@ -156,6 +162,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public Result<Page<ArticlePreviewDTO>> pageArticleByTag(String tagName, Long page, Long pageSize) {
         if (!StringUtils.hasText(tagName)) {
             return Result.failed(TAG_SELECT_SUCCESS, "非法参数");
+        }
+        if (Objects.isNull(page) || Objects.isNull(pageSize)) {
+            return Result.failed(ARTICLE_SELECT_FAILED, "非法参数");
         }
         Tag tag = tagService.getOne(new LambdaQueryWrapper<Tag>().eq(Tag::getName, tagName));
         if (Objects.isNull(tag)) {
@@ -170,6 +179,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public Result<Page<ArticlePreviewDTO>> pageArticleByCategory(String categoryName, Long page, Long pageSize) {
         if (!StringUtils.hasText(categoryName)) {
             return Result.failed(CATEGORY_SELECT_FAILED, "非法参数");
+        }
+        if (Objects.isNull(page) || Objects.isNull(pageSize)) {
+            return Result.failed(ARTICLE_SELECT_FAILED, "非法参数");
         }
         Category category = categoryService.getOne(new LambdaQueryWrapper<Category>().eq(Category::getName, categoryName));
         if (Objects.isNull(category)) {
@@ -233,7 +245,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     private Page<ArticlePreviewDTO> getPreviewPageIn(Long page, Long pageSize, List<Long> articleIds) {
         Page<Article> articlePage = new Page<>(page, pageSize);
-        page(articlePage, new LambdaQueryWrapper<Article>().eq(Article::getDelete, false).in(Article::getId, articleIds).orderByDesc(Article::getCreateTime));
+        page(articlePage, new LambdaQueryWrapper<Article>().eq(Article::getDeleted, false).in(Article::getId, articleIds).orderByDesc(Article::getCreateTime));
         Page<ArticlePreviewDTO> dtoPage = new Page<>();
         BeanUtils.copyProperties(articlePage, dtoPage, "records");
         dtoPage.setRecords(articlePage.getRecords().stream().map(this::getPreviewDTOByArticle).toList());

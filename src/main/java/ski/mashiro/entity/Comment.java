@@ -31,6 +31,6 @@ public class Comment {
      * 0:正常 1:删除
      */
     @TableField("is_delete")
-    private Boolean delete;
+    private Boolean deleted;
     private LocalDateTime createTime;
 }

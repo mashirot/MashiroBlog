@@ -16,7 +16,7 @@ public interface ArticleService extends IService<Article> {
      * @param articleDTO 新文章，title、content不为空
      * @return 结果
      */
-    Result<String> addArticle(ArticleDTO articleDTO);
+    Result<String> insArticle(ArticleDTO articleDTO);
 
     /**
      * 删除文章，逻辑删除，并物理删除两张关联表的行

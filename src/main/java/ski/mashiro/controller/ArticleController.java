@@ -21,7 +21,7 @@ public class ArticleController {
 
     @PostMapping
     public Result<String> addArticle(@RequestBody ArticleDTO articleDTO) {
-        return articleService.addArticle(articleDTO);
+        return articleService.insArticle(articleDTO);
     }
 
     @DeleteMapping
