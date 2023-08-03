@@ -36,6 +36,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final ArticleCategoryService articleCategoryService;
     private final CommentService commentService;
 
+    public static final int PREVIEW_CONTENT_LENGTH = 50;
+
     public ArticleServiceImpl(TagService tagService, CategoryService categoryService, ArticleTagService articleTagService, ArticleCategoryService articleCategoryService, CommentService commentService) {
         this.tagService = tagService;
         this.categoryService = categoryService;
@@ -47,7 +49,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Result<String> addArticle(ArticleDTO articleDTO) {
-        if (Objects.isNull(articleDTO)) {
+        if (Objects.isNull(articleDTO) || Objects.isNull(articleDTO.getTitle()) || Objects.isNull(articleDTO.getContent())) {
             return Result.failed(ARTICLE_INSERT_FAILED, "非法参数");
         }
         JwtInfo jwtInfo = (JwtInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -73,7 +75,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.success(ARTICLE_INSERT_SUCCESS, null);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Result<String> delArticle(ArticleDTO articleDTO) {
         if (Objects.isNull(articleDTO) || Objects.isNull(articleDTO.getId())) {
@@ -220,8 +222,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         ArticlePreviewDTO previewDTO = new ArticlePreviewDTO(article.getId(), article.getCreateTime());
         previewDTO.setTitle(article.getTitle());
         previewDTO.setPreviewContent(article.getContent());
-        if (article.getContent().length() > 50) {
-            previewDTO.setPreviewContent(article.getContent().substring(0, 50));
+        if (article.getContent().length() > PREVIEW_CONTENT_LENGTH) {
+            previewDTO.setPreviewContent(article.getContent().substring(0, PREVIEW_CONTENT_LENGTH));
         }
         previewDTO.setCommentCount(commentService.count(new LambdaQueryWrapper<Comment>().eq(Comment::getArticleId, article.getId())));
         List<Tag> tags = getArticleTags(article.getId());

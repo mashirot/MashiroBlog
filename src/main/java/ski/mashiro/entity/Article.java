@@ -19,7 +19,9 @@ public class Article {
     private List<String> category;
     @TableField(exist = false)
     private List<String> tag;
-//    0:正常 1:删除
+    /**
+     * 0:正常 1:删除
+     */
     @TableField("is_delete")
     private Boolean delete;
     private LocalDateTime createTime;

@@ -18,12 +18,18 @@ public class Comment {
     private String receiverEmail;
     private String content;
     private String senderIp;
-    //    0:正常 1:待审核
+    /**
+     * 0:正常 1:待审核
+     */
     private Integer status;
-    //    0:普通 1:私密
+    /**
+     * 0:普通 1:私密
+     */
     @TableField("is_secret")
     private Boolean secret;
-    //    0:普通 1:删除
+    /**
+     * 0:正常 1:删除
+     */
     @TableField("is_delete")
     private Boolean delete;
     private LocalDateTime createTime;
