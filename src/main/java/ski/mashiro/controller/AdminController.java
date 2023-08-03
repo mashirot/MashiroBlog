@@ -18,6 +18,9 @@ import ski.mashiro.service.AdminService;
 
 import static ski.mashiro.constant.StatusConstant.*;
 
+/**
+ * @author MashiroT
+ */
 @RestController
 @RequestMapping("/admin")
 public class AdminController {

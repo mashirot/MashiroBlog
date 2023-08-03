@@ -9,6 +9,9 @@ import ski.mashiro.service.SysInfoService;
 
 import static ski.mashiro.constant.StatusConstant.SYS_INFO_SUCCESS;
 
+/**
+ * @author MashiroT
+ */
 @RestController
 @RequestMapping("/info")
 public class SysInfoController {
