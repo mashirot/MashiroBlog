@@ -1,5 +1,6 @@
 package ski.mashiro.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -20,8 +21,10 @@ public class Comment {
     //    0:正常 1:待审核
     private Integer status;
     //    0:普通 1:私密
-    private Integer secret;
+    @TableField("is_secret")
+    private Boolean secret;
     //    0:普通 1:删除
-    private Integer isDelete;
+    @TableField("is_delete")
+    private Boolean delete;
     private LocalDateTime createTime;
 }
