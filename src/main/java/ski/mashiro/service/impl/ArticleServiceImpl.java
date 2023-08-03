@@ -35,16 +35,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final CategoryService categoryService;
     private final ArticleTagService articleTagService;
     private final ArticleCategoryService articleCategoryService;
-    private final CommentService commentService;
+    private final ArticleCommentService articleCommentService;
 
     public static final int PREVIEW_CONTENT_LENGTH = 50;
 
-    public ArticleServiceImpl(TagService tagService, CategoryService categoryService, ArticleTagService articleTagService, ArticleCategoryService articleCategoryService, CommentService commentService) {
+    public ArticleServiceImpl(TagService tagService, CategoryService categoryService, ArticleTagService articleTagService, ArticleCategoryService articleCategoryService, ArticleCommentService articleCommentService) {
         this.tagService = tagService;
         this.categoryService = categoryService;
         this.articleTagService = articleTagService;
         this.articleCategoryService = articleCategoryService;
-        this.commentService = commentService;
+        this.articleCommentService = articleCommentService;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -58,6 +58,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         article.setAuthorId(jwtInfo.id());
         article.setTitle(articleDTO.getTitle());
         article.setContent(articleDTO.getContent());
+        article.setCommentCount(0);
         article.setDeleted(false);
         LocalDateTime now = LocalDateTime.now();
         article.setCreateTime(now);
@@ -93,6 +94,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         );
         articleTagService.remove(new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getArticleId, article.getId()));
         articleCategoryService.remove(new LambdaQueryWrapper<ArticleCategory>().eq(ArticleCategory::getArticleId, article.getId()));
+        articleCommentService.update(new LambdaUpdateWrapper<Comment>().set(Comment::getDeleted, true).eq(Comment::getArticleId, article.getId()));
         return Result.success(ARTICLE_DELETE_SUCCESS, null);
     }
 
@@ -193,13 +195,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     private void addRelationTags(ArticleDTO articleDTO, Long articleId) {
-//        获取Tag
+        // 获取Tag
         List<String> tags = articleDTO.getTag();
         if (Objects.nonNull(tags)) {
-//        获取存在的Tag
+            // 获取存在的Tag
             List<Tag> existedTag = tagService.list(new LambdaQueryWrapper<Tag>().in(Tag::getName, tags));
             Set<String> existedTagSet = existedTag.stream().map(Tag::getName).collect(Collectors.toSet());
-//        判断是否有新Tag，并添加到已存在的TagList
+            // 判断是否有新Tag，并添加到已存在的TagList
             tags.forEach(tag -> {
                 if (!existedTagSet.contains(tag)) {
                     Tag t = new Tag(tag);
@@ -207,7 +209,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                     existedTag.add(t);
                 }
             });
-//        中间表插入
+            // 中间表插入
             List<ArticleTag> articleTags = existedTag.stream().map(tag -> new ArticleTag(articleId, tag.getId())).toList();
             articleTagService.saveBatch(articleTags);
         }
@@ -237,7 +239,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (article.getContent().length() > PREVIEW_CONTENT_LENGTH) {
             previewDTO.setPreviewContent(article.getContent().substring(0, PREVIEW_CONTENT_LENGTH));
         }
-        previewDTO.setCommentCount(commentService.count(new LambdaQueryWrapper<Comment>().eq(Comment::getArticleId, article.getId())));
+        previewDTO.setCommentCount(article.getCommentCount());
         List<Tag> tags = getArticleTags(article.getId());
         previewDTO.setTag(tags.stream().map(Tag::getName).toList());
         return previewDTO;

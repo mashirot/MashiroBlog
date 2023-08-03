@@ -15,6 +15,7 @@ public class Article {
     private Long authorId;
     private String title;
     private String content;
+    private Integer commentCount;
     @TableField(exist = false)
     private List<String> category;
     @TableField(exist = false)
