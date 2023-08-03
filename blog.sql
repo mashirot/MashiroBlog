@@ -11,7 +11,7 @@
  Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 02/08/2023 03:41:40
+ Date: 04/08/2023 05:47:11
 */
 
 SET NAMES utf8mb4;
@@ -39,7 +39,9 @@ DROP TABLE IF EXISTS `article`;
 CREATE TABLE `article`  (
                             `id` bigint NOT NULL,
                             `author_id` bigint NOT NULL,
+                            `title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
                             `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                            `comment_count` int NOT NULL DEFAULT 0,
                             `is_delete` tinyint UNSIGNED NOT NULL DEFAULT 0 COMMENT '0:正常 1:删除',
                             `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                             `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -120,5 +122,11 @@ CREATE TABLE `tag`  (
                         PRIMARY KEY (`id`) USING BTREE,
                         UNIQUE INDEX `tag_name_uq`(`name` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- View structure for sys_info
+-- ----------------------------
+DROP VIEW IF EXISTS `sys_info`;
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `sys_info` AS select (select count(0) from `article` where (`article`.`is_delete` = 0)) AS `(select count(*) from article where is_delete = 0)`,(select count(0) from `comment` where (`comment`.`is_delete` = 0)) AS `(select count(*) from comment where is_delete = 0)`,(select (to_days(now()) - to_days(`admin`.`create_time`)) from `admin`) AS `(select DATEDIFF(CURRENT_TIMESTAMP, create_time) from admin)`;
 
 SET FOREIGN_KEY_CHECKS = 1;
