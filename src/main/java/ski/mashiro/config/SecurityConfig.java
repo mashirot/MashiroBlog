@@ -38,17 +38,25 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(o -> o.configure(http))
                 .authorizeHttpRequests(authorize -> authorize
-//                                路径配置
+                                // 登录
                                 .requestMatchers(HttpMethod.POST, "/admin/login").anonymous()
                                 .requestMatchers(
                                         HttpMethod.GET,
                                         new String[]{
+                                                // 统计信息
                                                 "/info",
+                                                // 文章详细，文章分页
                                                 "/article/**",
+                                                // tag查看文章
                                                 "/tag/**",
+                                                // category查看文章
                                                 "/category/**",
+                                                // 文章下评论
+                                                "/comment/art/**"
                                         }
                                 ).permitAll()
+                                // 发布评论
+                                .requestMatchers(HttpMethod.POST, "/comment").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
