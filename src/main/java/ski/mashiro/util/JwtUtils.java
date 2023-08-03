@@ -1,4 +1,4 @@
-package ski.mashiro.utils;
+package ski.mashiro.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

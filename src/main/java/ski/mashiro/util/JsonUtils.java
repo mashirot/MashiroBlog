@@ -1,4 +1,4 @@
-package ski.mashiro.utils;
+package ski.mashiro.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

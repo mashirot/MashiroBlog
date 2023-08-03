@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ski.mashiro.common.JwtInfo;
-import ski.mashiro.utils.JwtUtils;
+import ski.mashiro.util.JwtUtils;
 
 import java.io.IOException;
 import java.util.Objects;

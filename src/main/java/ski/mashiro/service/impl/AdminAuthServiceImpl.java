@@ -14,7 +14,7 @@ import ski.mashiro.dto.AdminLoginDTO;
 import ski.mashiro.entity.Admin;
 import ski.mashiro.security.SecurityUser;
 import ski.mashiro.service.AdminAuthService;
-import ski.mashiro.utils.JwtUtils;
+import ski.mashiro.util.JwtUtils;
 
 import java.util.Map;
 import java.util.UUID;
