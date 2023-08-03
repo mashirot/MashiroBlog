@@ -33,4 +33,12 @@ public class StatusConstant {
     public static final int CATEGORY_DELETE_FAILED = 40020;
     public static final int CATEGORY_SELECT_SUCCESS = 40031;
     public static final int CATEGORY_SELECT_FAILED = 40030;
+    public static final int COMMENT_INSERT_SUCCESS = 60011;
+    public static final int COMMENT_INSERT_FAILED = 60010;
+    public static final int COMMENT_DELETE_SUCCESS = 60021;
+    public static final int COMMENT_DELETE_FAILED = 60020;
+    public static final int COMMENT_UPDATE_SUCCESS = 60031;
+    public static final int COMMENT_UPDATE_FAILED = 60030;
+    public static final int COMMENT_SELECT_SUCCESS = 60041;
+    public static final int COMMENT_SELECT_FAILED = 60040;
 }
