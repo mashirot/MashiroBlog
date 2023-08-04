@@ -7,6 +7,9 @@ import lombok.Data;
  */
 @Data
 public class SysInfo {
+    private String ownerNickname;
+    private String ownerEmail;
+    private String ownerProfile;
     private Long articleCount;
     private Long commentCount;
     private Long runDay;

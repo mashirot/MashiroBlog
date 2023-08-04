@@ -17,5 +17,6 @@ public class AdminInfoDTO {
     private String username;
     private String nickname;
     private String email;
+    private String profile;
     private LocalDateTime createTime;
 }

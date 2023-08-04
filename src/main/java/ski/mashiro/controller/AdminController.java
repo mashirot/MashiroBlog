@@ -52,6 +52,7 @@ public class AdminController {
                 .set(StringUtils.hasText(adminUpdateDTO.getPassword()), Admin::getPassword, passwordEncoder.encode(adminUpdateDTO.getPassword()))
                 .set(StringUtils.hasText(adminUpdateDTO.getNickname()), Admin::getNickname, adminUpdateDTO.getNickname())
                 .set(StringUtils.hasText(adminUpdateDTO.getEmail()), Admin::getEmail, adminUpdateDTO.getEmail())
+                .set(StringUtils.hasText(adminUpdateDTO.getProfile()), Admin::getProfile, adminUpdateDTO.getProfile())
                 .eq(Admin::getId, jwtInfo.id());
         return adminService.update(updateWrapper) ? Result.success(ADMIN_UPDATE_SUCCESS, null) : Result.failed(ADMIN_UPDATE_FAILED, "更新失败，请检查后端日志");
     }
@@ -60,6 +61,6 @@ public class AdminController {
     public Result<AdminInfoDTO> info() {
         JwtInfo jwtInfo = (JwtInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Admin admin = adminService.getOne(new LambdaQueryWrapper<Admin>().eq(Admin::getId, jwtInfo.id()));
-        return Result.success(ADMIN_INFO_SUCCESS, new AdminInfoDTO(admin.getId(), admin.getUsername(), admin.getNickname(), admin.getEmail(), admin.getCreateTime()));
+        return Result.success(ADMIN_INFO_SUCCESS, new AdminInfoDTO(admin.getId(), admin.getUsername(), admin.getNickname(), admin.getEmail(), admin.getProfile(), admin.getCreateTime()));
     }
 }

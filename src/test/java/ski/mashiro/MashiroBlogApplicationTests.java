@@ -14,7 +14,15 @@ class MashiroBlogApplicationTests {
 
     @Test
     void insertUser(@Autowired AdminService adminService, @Autowired PasswordEncoder passwordEncoder) {
-        adminService.save(new Admin("mashiro", passwordEncoder.encode("123456"), "Shiina", "ShiinaMashiro@sakurasou.com", LocalDateTime.now()));
+        adminService.save(new Admin(
+                null,
+                "mashiro",
+                passwordEncoder.encode("123456"),
+                "Shiina",
+                "ShiinaMashiro@sakurasou.com",
+                "ねぇ，あなたは何色になりたい?",
+                LocalDateTime.now()
+        ));
     }
 
 }
