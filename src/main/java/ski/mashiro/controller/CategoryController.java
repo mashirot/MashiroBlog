@@ -8,8 +8,9 @@ import ski.mashiro.entity.Category;
 import ski.mashiro.service.ArticleService;
 import ski.mashiro.service.CategoryService;
 
-import static ski.mashiro.constant.StatusConstant.CATEGORY_INSERT_FAILED;
-import static ski.mashiro.constant.StatusConstant.CATEGORY_INSERT_SUCCESS;
+import java.util.List;
+
+import static ski.mashiro.constant.StatusConstant.*;
 
 /**
  * @author MashiroT
@@ -34,6 +35,11 @@ public class CategoryController {
     @DeleteMapping
     public Result<String> delCategory(@RequestBody Category category) {
         return categoryService.delCategory(category);
+    }
+
+    @GetMapping
+    public Result<List<Category>> listCategory() {
+        return Result.success(CATEGORY_SELECT_SUCCESS, categoryService.list());
     }
 
     @GetMapping("/{categoryName}")
