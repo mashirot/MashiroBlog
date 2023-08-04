@@ -18,9 +18,7 @@ import ski.mashiro.mapper.ArticleMapper;
 import ski.mashiro.service.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ski.mashiro.constant.StatusConstant.*;
@@ -37,7 +35,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final ArticleCategoryService articleCategoryService;
     private final ArticleCommentService articleCommentService;
 
-    public static final int PREVIEW_CONTENT_LENGTH = 50;
+    public static final int PREVIEW_CONTENT_LENGTH = 200;
 
     public ArticleServiceImpl(TagService tagService, CategoryService categoryService, ArticleTagService articleTagService, ArticleCategoryService articleCategoryService, ArticleCommentService articleCommentService) {
         this.tagService = tagService;
@@ -256,11 +254,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     private List<Category> getArticleCategories(Long articleId) {
         List<ArticleCategory> relationCategories = articleCategoryService.list(new LambdaQueryWrapper<ArticleCategory>().eq(ArticleCategory::getArticleId, articleId));
-        return categoryService.listByIds(relationCategories.stream().map(ArticleCategory::getCategoryId).toList());
+        return relationCategories.isEmpty() ? new ArrayList<>(0) : categoryService.listByIds(relationCategories.stream().map(ArticleCategory::getCategoryId).toList());
     }
 
     private List<Tag> getArticleTags(Long articleId) {
         List<ArticleTag> relationTags = articleTagService.list(new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getArticleId, articleId));
-        return tagService.listByIds(relationTags.stream().map(ArticleTag::getTagId).toList());
+        return relationTags.isEmpty() ? new ArrayList<>(0) : tagService.listByIds(relationTags.stream().map(ArticleTag::getTagId).toList());
     }
 }
