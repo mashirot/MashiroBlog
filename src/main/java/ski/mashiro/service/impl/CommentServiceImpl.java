@@ -34,7 +34,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Result<String> insComment(CommentDTO commentDTO) {
+    public Result<String> insComment(CommentDTO commentDTO, String remoteHost) {
         if (Objects.isNull(commentDTO) || Objects.isNull(commentDTO.getArticleId())) {
             return Result.failed(COMMENT_INSERT_FAILED, "非法参数");
         }
@@ -44,6 +44,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         Comment comment = new Comment();
         BeanUtils.copyProperties(commentDTO, comment);
         comment.setId(null);
+        comment.setSenderIp(remoteHost);
         comment.setStatus(1);
         comment.setDeleted(false);
         comment.setCreateTime(LocalDateTime.now());

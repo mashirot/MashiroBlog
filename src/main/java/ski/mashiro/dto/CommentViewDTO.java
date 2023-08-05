@@ -8,13 +8,11 @@ import java.time.LocalDateTime;
  * @author MashiroT
  */
 @Data
-public class CommentDTO {
+public class CommentViewDTO {
     private Long id;
     private Long articleId;
     private String senderNickname;
-    private String senderEmail;
+    private String senderEmailMD5;
     private String content;
-    private String senderIp;
-    private Boolean secret;
     private LocalDateTime createTime;
 }

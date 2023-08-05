@@ -2,11 +2,14 @@ package ski.mashiro.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import ski.mashiro.common.Result;
 import ski.mashiro.dto.CommentDTO;
 import ski.mashiro.dto.CommentUpdateDTO;
+import ski.mashiro.dto.CommentViewDTO;
 import ski.mashiro.entity.Comment;
 import ski.mashiro.service.CommentService;
 
@@ -29,8 +32,8 @@ public class CommentController {
     }
 
     @PostMapping
-    public Result<String> addComment(@RequestBody CommentDTO commentDTO) {
-        return commentService.insComment(commentDTO);
+    public Result<String> addComment(@RequestBody CommentDTO commentDTO, HttpServletRequest request) {
+        return commentService.insComment(commentDTO, request.getRemoteAddr());
     }
 
     @DeleteMapping
@@ -65,7 +68,7 @@ public class CommentController {
     }
 
     @GetMapping("/art/{articleId}")
-    public Result<Page<CommentDTO>> pageCommentByArticleId(@PathVariable("articleId") Long articleId, Long page, Long pageSize) {
+    public Result<Page<CommentViewDTO>> pageCommentByArticleId(@PathVariable("articleId") Long articleId, Long page, Long pageSize) {
         if (Objects.isNull(page) || Objects.isNull(pageSize)) {
             return Result.failed(COMMENT_SELECT_FAILED, "非法参数");
         }
@@ -74,11 +77,28 @@ public class CommentController {
                 commentPage,
                 new LambdaQueryWrapper<Comment>()
                         .eq(Comment::getArticleId, articleId)
+                        // 未删除
                         .eq(Comment::getDeleted, false)
+                        // 已审核
+                        .eq(Comment::getStatus, 0)
+                        // 非私密
+                        .eq(Comment::getSecret, false)
                         .orderByDesc(Comment::getCreateTime)
         );
-        Page<CommentDTO> commentDTOPage = getCommentDTOPage(commentPage);
-        return Result.success(COMMENT_SELECT_SUCCESS, commentDTOPage);
+        Page<CommentViewDTO> commentViewDTOPage = getCommentViewDTO(commentPage);
+        return Result.success(COMMENT_SELECT_SUCCESS, commentViewDTOPage);
+    }
+
+    private Page<CommentViewDTO> getCommentViewDTO(Page<Comment> commentPage) {
+        Page<CommentViewDTO> commentViewDTOPage = new Page<>();
+        BeanUtils.copyProperties(commentPage, commentViewDTOPage, "records");
+        commentViewDTOPage.setRecords(commentPage.getRecords().stream().map(comment -> {
+            CommentViewDTO commentViewDTO = new CommentViewDTO();
+            BeanUtils.copyProperties(comment, commentViewDTO);
+            commentViewDTO.setSenderEmailMD5(DigestUtils.md5DigestAsHex(comment.getSenderEmail().toLowerCase().getBytes()));
+            return commentViewDTO;
+        }).toList());
+        return commentViewDTOPage;
     }
 
     private static Page<CommentDTO> getCommentDTOPage(Page<Comment> commentPage) {

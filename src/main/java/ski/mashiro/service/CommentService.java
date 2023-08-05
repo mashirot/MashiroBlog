@@ -12,10 +12,12 @@ import ski.mashiro.entity.Comment;
 public interface CommentService extends IService<Comment> {
     /**
      * 添加评论
+     *
      * @param commentDTO 评论DTO
+     * @param remoteHost senderIP
      * @return 结果
      */
-    Result<String> insComment(CommentDTO commentDTO);
+    Result<String> insComment(CommentDTO commentDTO, String remoteHost);
 
     /**
      * 删除评论
