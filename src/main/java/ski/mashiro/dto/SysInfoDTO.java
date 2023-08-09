@@ -1,4 +1,4 @@
-package ski.mashiro.entity;
+package ski.mashiro.dto;
 
 import lombok.Data;
 
@@ -6,14 +6,11 @@ import lombok.Data;
  * @author MashiroT
  */
 @Data
-public class SysInfo {
+public class SysInfoDTO {
     private String ownerNickname;
     private String ownerEmail;
     private String ownerProfile;
     private Long articleCount;
     private Long commentCount;
-    private Long unReviewCommentCount;
-    private Long categoryCount;
-    private Long tagCount;
     private Long runDay;
 }
