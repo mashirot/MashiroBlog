@@ -16,6 +16,7 @@ public class ArticlePreviewDTO {
     private String title;
     private String previewContent;
     private Integer commentCount;
+    private List<String> category;
     private List<String> tag;
     private LocalDateTime createTime;
 

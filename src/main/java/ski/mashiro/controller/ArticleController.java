@@ -24,9 +24,9 @@ public class ArticleController {
         return articleService.insArticle(articleDTO);
     }
 
-    @DeleteMapping
-    public Result<String> delArticle(@RequestBody ArticleDTO articleDTO) {
-        return articleService.delArticle(articleDTO);
+    @DeleteMapping("/{articleId}")
+    public Result<String> delArticle(@PathVariable("articleId") Long articleId) {
+        return articleService.delArticle(articleId);
     }
 
     @PutMapping

@@ -20,10 +20,10 @@ public interface ArticleService extends IService<Article> {
 
     /**
      * 删除文章，逻辑删除，并物理删除两张关联表的行
-     * @param articleDTO 删除文章的对象，id不为空
+     * @param articleId 删除文章的id
      * @return 结果
      */
-    Result<String> delArticle(ArticleDTO articleDTO);
+    Result<String> delArticle(Long articleId);
 
     /**
      * 更新文章

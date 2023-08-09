@@ -77,11 +77,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Result<String> delArticle(ArticleDTO articleDTO) {
-        if (Objects.isNull(articleDTO) || Objects.isNull(articleDTO.getId())) {
+    public Result<String> delArticle(Long articleId) {
+        if (Objects.isNull(articleId)) {
             return Result.failed(ARTICLE_DELETE_FAILED, "非法参数");
         }
-        Article article = getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, articleDTO.getId()).eq(Article::getDeleted, false));
+        Article article = getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, articleId).eq(Article::getDeleted, false));
         if (Objects.isNull(article)) {
             return Result.failed(ARTICLE_DELETE_FAILED, "删除失败，Article不存在");
         }
@@ -238,6 +238,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             previewDTO.setPreviewContent(article.getContent().substring(0, PREVIEW_CONTENT_LENGTH));
         }
         previewDTO.setCommentCount(article.getCommentCount());
+        List<Category> categories = getArticleCategories(article.getId());
+        previewDTO.setCategory(categories.stream().map(Category::getName).toList());
         List<Tag> tags = getArticleTags(article.getId());
         previewDTO.setTag(tags.stream().map(Tag::getName).toList());
         return previewDTO;
