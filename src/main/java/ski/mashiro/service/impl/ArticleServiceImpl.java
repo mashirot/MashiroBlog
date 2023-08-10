@@ -96,6 +96,24 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.success(ARTICLE_DELETE_SUCCESS, null);
     }
 
+    @Override
+    public Result<String> replyArticle(Long articleId) {
+        if (Objects.isNull(articleId)) {
+            return Result.failed(ARTICLE_UPDATE_FAILED, "非法参数");
+        }
+        Article article = getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, articleId).eq(Article::getDeleted, true));
+        if (Objects.isNull(article)) {
+            return Result.failed(ARTICLE_UPDATE_FAILED, "恢复失败，Article不存在或未被删除");
+        }
+        update(new LambdaUpdateWrapper<Article>()
+                .set(Article::getDeleted, false)
+                .set(Article::getUpdateTime, LocalDateTime.now())
+                .eq(Article::getId, article.getId())
+        );
+        articleCommentService.update(new LambdaUpdateWrapper<Comment>().set(Comment::getDeleted, false).eq(Comment::getArticleId, article.getId()));
+        return Result.success(ARTICLE_UPDATE_SUCCESS, null);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Result<String> updArticle(ArticleDTO articleDTO) {
@@ -152,6 +170,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
         Page<Article> articlePage = new Page<>(page, pageSize);
         page(articlePage, new LambdaQueryWrapper<Article>().eq(Article::getDeleted, false).orderByDesc(Article::getCreateTime));
+        Page<ArticlePreviewDTO> dtoPage = new Page<>();
+        BeanUtils.copyProperties(articlePage, dtoPage, "records");
+        dtoPage.setRecords(articlePage.getRecords().stream().map(this::getPreviewDTOByArticle).toList());
+        return Result.success(TAG_SELECT_SUCCESS, dtoPage);
+    }
+
+    @Override
+    public Result<Page<ArticlePreviewDTO>> pageDelPreview(Long page, Long pageSize) {
+        if (Objects.isNull(page) || Objects.isNull(pageSize)) {
+            return Result.failed(ARTICLE_SELECT_FAILED, "非法参数");
+        }
+        Page<Article> articlePage = new Page<>(page, pageSize);
+        page(articlePage, new LambdaQueryWrapper<Article>().eq(Article::getDeleted, true).orderByDesc(Article::getUpdateTime));
         Page<ArticlePreviewDTO> dtoPage = new Page<>();
         BeanUtils.copyProperties(articlePage, dtoPage, "records");
         dtoPage.setRecords(articlePage.getRecords().stream().map(this::getPreviewDTOByArticle).toList());

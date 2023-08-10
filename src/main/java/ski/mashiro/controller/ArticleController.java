@@ -29,6 +29,11 @@ public class ArticleController {
         return articleService.delArticle(articleId);
     }
 
+    @PutMapping("/reply/{articleId}")
+    public Result<String> replyArticle(@PathVariable("articleId") Long articleId) {
+        return articleService.replyArticle(articleId);
+    }
+
     @PutMapping
     public Result<String> updArticle(@RequestBody ArticleDTO articleDTO) {
         return articleService.updArticle(articleDTO);
@@ -42,5 +47,10 @@ public class ArticleController {
     @GetMapping("/page")
     public Result<Page<ArticlePreviewDTO>> page(Long page, Long pageSize) {
         return articleService.pagePreview(page, pageSize);
+    }
+
+    @GetMapping("/pageDel")
+    public Result<Page<ArticlePreviewDTO>> pageDel(Long page, Long pageSize) {
+        return articleService.pageDelPreview(page, pageSize);
     }
 }

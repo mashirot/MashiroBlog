@@ -32,7 +32,6 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         this.articleService = articleService;
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
     public Result<String> insComment(CommentDTO commentDTO, String remoteHost) {
         if (Objects.isNull(commentDTO) || Objects.isNull(commentDTO.getArticleId())) {
@@ -49,25 +48,40 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         comment.setDeleted(false);
         comment.setCreateTime(LocalDateTime.now());
         save(comment);
-        plusArticleCommentCount(commentDTO.getArticleId());
         return Result.success(COMMENT_INSERT_SUCCESS, null);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Result<String> delComment(CommentUpdateDTO commentUpdateDTO) {
-        if (Objects.isNull(commentUpdateDTO) || Objects.isNull(commentUpdateDTO.getId())) {
+    public Result<String> delComment(Long commentId) {
+        if (Objects.isNull(commentId)) {
             return Result.failed(COMMENT_DELETE_FAILED, "非法参数");
         }
-        Comment comment = getById(commentUpdateDTO.getId());
-        if (Objects.isNull(comment) || !comment.getDeleted()) {
-            return Result.failed(COMMENT_DELETE_FAILED, "删除失败，评论不存在");
+        Comment comment = getById(commentId);
+        if (Objects.isNull(comment) || comment.getDeleted()) {
+            return Result.failed(COMMENT_DELETE_FAILED, "删除失败，评论不存在或已被删除");
         }
         update(new LambdaUpdateWrapper<Comment>()
                 .set(Comment::getDeleted, true)
                 .eq(Comment::getId, comment.getId()));
         minusArticleCommentCount(comment.getArticleId());
         return Result.success(COMMENT_DELETE_SUCCESS, null);
+    }
+
+    @Override
+    public Result<String> replyComment(Long commentId) {
+        if (Objects.isNull(commentId)) {
+            return Result.failed(COMMENT_UPDATE_FAILED, "非法参数");
+        }
+        Comment comment = getById(commentId);
+        if (Objects.isNull(comment) || !comment.getDeleted()) {
+            return Result.failed(COMMENT_UPDATE_FAILED, "恢复失败，评论不存在或未被删除");
+        }
+        update(new LambdaUpdateWrapper<Comment>()
+                .set(Comment::getDeleted, false)
+                .eq(Comment::getId, comment.getId()));
+        plusArticleCommentCount(comment.getArticleId());
+        return Result.success(COMMENT_UPDATE_SUCCESS, null);
     }
 
     @Override
@@ -81,6 +95,21 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 .set(Objects.nonNull(commentUpdateDTO.getSecret()), Comment::getSecret, commentUpdateDTO.getSecret())
                 .eq(Comment::getId, commentUpdateDTO.getId())
         ) ? Result.success(COMMENT_UPDATE_SUCCESS, null) : Result.failed(COMMENT_UPDATE_FAILED, "更新失败，评论不存在");
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Result<String> reviewComment(Long commentId) {
+        if (Objects.isNull(commentId)) {
+            return Result.failed(COMMENT_UPDATE_FAILED, "非法参数");
+        }
+        Comment comment = getById(commentId);
+        if (Objects.isNull(comment) || comment.getDeleted()) {
+            return Result.failed(COMMENT_UPDATE_FAILED, "审核失败，评论不存在或已删除");
+        }
+        update(new LambdaUpdateWrapper<Comment>().set(Comment::getStatus, 0).eq(Comment::getId, comment.getId()));
+        plusArticleCommentCount(comment.getArticleId());
+        return Result.success(COMMENT_UPDATE_SUCCESS, null);
     }
 
     /**

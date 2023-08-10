@@ -21,10 +21,19 @@ public interface CommentService extends IService<Comment> {
 
     /**
      * 删除评论
-     * @param commentUpdateDTO 删除DTO，仅包含id
+     *
+     * @param commentId 评论id
      * @return 结果
      */
-    Result<String> delComment(CommentUpdateDTO commentUpdateDTO);
+    Result<String> delComment(Long commentId);
+
+    /**
+     * 恢复评论
+     *
+     * @param commentId 评论id
+     * @return 结果
+     */
+    Result<String> replyComment(Long commentId);
 
     /**
      * 更新评论
@@ -32,4 +41,11 @@ public interface CommentService extends IService<Comment> {
      * @return 结果
      */
     Result<String> updComment(CommentUpdateDTO commentUpdateDTO);
+
+    /**
+     * 审核评论
+     * @param commentId 评论id
+     * @return 结果
+     */
+    Result<String> reviewComment(Long commentId);
 }

@@ -36,14 +36,24 @@ public class CommentController {
         return commentService.insComment(commentDTO, request.getRemoteAddr());
     }
 
-    @DeleteMapping
-    public Result<String> delComment(@RequestBody CommentUpdateDTO commentUpdateDTO) {
-        return commentService.delComment(commentUpdateDTO);
+    @DeleteMapping("/{commentId}")
+    public Result<String> delComment(@PathVariable("commentId") Long commentId) {
+        return commentService.delComment(commentId);
+    }
+
+    @PutMapping("/reply/{commentId}")
+    public Result<String> replyComment(@PathVariable("commentId") Long commentId) {
+        return commentService.replyComment(commentId);
     }
 
     @PutMapping
     public Result<String> updComment(@RequestBody CommentUpdateDTO commentUpdateDTO) {
         return commentService.updComment(commentUpdateDTO);
+    }
+
+    @PutMapping("/review/{commentId}")
+    public Result<String> reviewComment(@PathVariable("commentId") Long commentId) {
+        return commentService.reviewComment(commentId);
     }
 
     @GetMapping("/{commentId}")
@@ -61,6 +71,40 @@ public class CommentController {
         commentService.page(commentPage,
                 new LambdaQueryWrapper<Comment>()
                         .eq(Comment::getDeleted, false)
+                        .eq(Comment::getStatus, 0)
+                        .orderByDesc(Comment::getCreateTime)
+        );
+        Page<CommentDTO> commentDTOPage = getCommentDTOPage(commentPage);
+        return Result.success(COMMENT_SELECT_SUCCESS, commentDTOPage);
+    }
+
+    @GetMapping("/pageUnreviewed")
+    public Result<Page<CommentDTO>> pageUnreviewedComment(Long page, Long pageSize) {
+        if (Objects.isNull(page) || Objects.isNull(pageSize)) {
+            return Result.failed(COMMENT_SELECT_FAILED, "非法参数");
+        }
+        Page<Comment> commentPage = new Page<>(page, pageSize);
+        commentService.page(commentPage,
+                new LambdaQueryWrapper<Comment>()
+                        // 未删除
+                        .eq(Comment::getDeleted, false)
+                        // 未审核
+                        .eq(Comment::getStatus, 1)
+                        .orderByDesc(Comment::getCreateTime)
+        );
+        Page<CommentDTO> commentDTOPage = getCommentDTOPage(commentPage);
+        return Result.success(COMMENT_SELECT_SUCCESS, commentDTOPage);
+    }
+
+    @GetMapping("/pageDel")
+    public Result<Page<CommentDTO>> pageDelComment(Long page, Long pageSize) {
+        if (Objects.isNull(page) || Objects.isNull(pageSize)) {
+            return Result.failed(COMMENT_SELECT_FAILED, "非法参数");
+        }
+        Page<Comment> commentPage = new Page<>(page, pageSize);
+        commentService.page(commentPage,
+                new LambdaQueryWrapper<Comment>()
+                        .eq(Comment::getDeleted, true)
                         .orderByDesc(Comment::getCreateTime)
         );
         Page<CommentDTO> commentDTOPage = getCommentDTOPage(commentPage);
