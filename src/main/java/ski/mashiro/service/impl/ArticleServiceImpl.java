@@ -195,7 +195,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private void addRelationTags(ArticleDTO articleDTO, Long articleId) {
         // 获取Tag
         List<String> tags = articleDTO.getTag();
-        if (Objects.nonNull(tags)) {
+        if (Objects.nonNull(tags) && !tags.isEmpty()) {
             // 获取存在的Tag
             List<Tag> existedTag = tagService.list(new LambdaQueryWrapper<Tag>().in(Tag::getName, tags));
             Set<String> existedTagSet = existedTag.stream().map(Tag::getName).collect(Collectors.toSet());
@@ -215,7 +215,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     private void addRelationCategories(ArticleDTO articleDTO, Long articleId) {
         List<String> categories = articleDTO.getCategory();
-        if (Objects.nonNull(categories)) {
+        if (Objects.nonNull(categories) && !categories.isEmpty()) {
             List<Category> existedCategory = categoryService.list(new LambdaQueryWrapper<Category>().in(Category::getName, categories));
             Set<String> existedCategorySet = existedCategory.stream().map(Category::getName).collect(Collectors.toSet());
             categories.forEach(category -> {
