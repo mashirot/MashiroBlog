@@ -30,7 +30,7 @@ public interface ArticleService extends IService<Article> {
      * @param articleId 恢复文章的id
      * @return 结果
      */
-    Result<String> replyArticle(Long articleId);
+    Result<String> recoverArticle(Long articleId);
 
     /**
      * 更新文章

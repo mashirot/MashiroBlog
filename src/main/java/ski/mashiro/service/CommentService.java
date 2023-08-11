@@ -33,7 +33,7 @@ public interface CommentService extends IService<Comment> {
      * @param commentId 评论id
      * @return 结果
      */
-    Result<String> replyComment(Long commentId);
+    Result<String> recoverComment(Long commentId);
 
     /**
      * 更新评论

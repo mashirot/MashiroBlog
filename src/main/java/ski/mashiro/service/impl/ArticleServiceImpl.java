@@ -97,7 +97,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public Result<String> replyArticle(Long articleId) {
+    public Result<String> recoverArticle(Long articleId) {
         if (Objects.isNull(articleId)) {
             return Result.failed(ARTICLE_UPDATE_FAILED, "非法参数");
         }

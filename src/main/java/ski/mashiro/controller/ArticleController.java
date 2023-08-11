@@ -29,9 +29,9 @@ public class ArticleController {
         return articleService.delArticle(articleId);
     }
 
-    @PutMapping("/reply/{articleId}")
-    public Result<String> replyArticle(@PathVariable("articleId") Long articleId) {
-        return articleService.replyArticle(articleId);
+    @PutMapping("/recover/{articleId}")
+    public Result<String> recoverArticle(@PathVariable("articleId") Long articleId) {
+        return articleService.recoverArticle(articleId);
     }
 
     @PutMapping

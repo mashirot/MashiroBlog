@@ -41,9 +41,9 @@ public class CommentController {
         return commentService.delComment(commentId);
     }
 
-    @PutMapping("/reply/{commentId}")
-    public Result<String> replyComment(@PathVariable("commentId") Long commentId) {
-        return commentService.replyComment(commentId);
+    @PutMapping("/recover/{commentId}")
+    public Result<String> recoverComment(@PathVariable("commentId") Long commentId) {
+        return commentService.recoverComment(commentId);
     }
 
     @PutMapping

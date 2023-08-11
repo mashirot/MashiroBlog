@@ -69,7 +69,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     }
 
     @Override
-    public Result<String> replyComment(Long commentId) {
+    public Result<String> recoverComment(Long commentId) {
         if (Objects.isNull(commentId)) {
             return Result.failed(COMMENT_UPDATE_FAILED, "非法参数");
         }
