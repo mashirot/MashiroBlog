@@ -1,16 +1,17 @@
 package ski.mashiro.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ski.mashiro.common.Result;
-import ski.mashiro.exception.SecurityException;
 
 import static ski.mashiro.constant.StatusConstant.ACCESS_DENIED;
 import static ski.mashiro.constant.StatusConstant.SYS_ERR;
 
 /**
  * @author MashiroT
+ * @since 2023-08-02
  */
 @RestControllerAdvice
 @Slf4j
@@ -22,8 +23,8 @@ public class GlobalExceptionHandler {
         return Result.failed(SYS_ERR, "系统错误");
     }
 
-    @ExceptionHandler(SecurityException.class)
-    public Result<String> securityExceptionHandler(SecurityException e) {
+    @ExceptionHandler(AuthenticationException.class)
+    public Result<String> securityExceptionHandler(AuthenticationException e) {
         log.error("{}", e.getMessage());
         return Result.failed(ACCESS_DENIED, e.getMessage());
     }
