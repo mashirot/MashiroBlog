@@ -14,6 +14,8 @@ public class Comment {
     private Long articleId;
     private String senderNickname;
     private String senderEmail;
+    private String receiverNickname;
+    private String replyCommentId;
     private String content;
     private String senderIp;
     /**

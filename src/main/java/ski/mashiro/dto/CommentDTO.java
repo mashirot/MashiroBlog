@@ -13,6 +13,8 @@ public class CommentDTO {
     private Long articleId;
     private String senderNickname;
     private String senderEmail;
+    private String receiverNickname;
+    private String replyCommentId;
     private String content;
     private String senderIp;
     private Boolean secret;

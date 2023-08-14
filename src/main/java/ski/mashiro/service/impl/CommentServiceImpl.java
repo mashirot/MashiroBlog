@@ -2,13 +2,16 @@ package ski.mashiro.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 import ski.mashiro.common.Result;
 import ski.mashiro.dto.CommentDTO;
 import ski.mashiro.dto.CommentUpdateDTO;
+import ski.mashiro.dto.CommentViewDTO;
 import ski.mashiro.entity.Article;
 import ski.mashiro.entity.Comment;
 import ski.mashiro.mapper.CommentMapper;
@@ -44,6 +47,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         BeanUtils.copyProperties(commentDTO, comment);
         comment.setId(null);
         comment.setSenderIp(remoteHost);
+        comment.setReplyCommentId(commentDTO.getReplyCommentId());
+        comment.setReceiverNickname(commentDTO.getReceiverNickname());
         comment.setStatus(1);
         comment.setDeleted(false);
         comment.setCreateTime(LocalDateTime.now());
@@ -110,6 +115,104 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         update(new LambdaUpdateWrapper<Comment>().set(Comment::getStatus, 0).eq(Comment::getId, comment.getId()));
         plusArticleCommentCount(comment.getArticleId());
         return Result.success(COMMENT_UPDATE_SUCCESS, null);
+    }
+
+    @Override
+    public Result<Page<CommentDTO>> pageComment(Long page, Long pageSize) {
+        if (Objects.isNull(page) || Objects.isNull(pageSize)) {
+            return Result.failed(COMMENT_SELECT_FAILED, "非法参数");
+        }
+        Page<Comment> commentPage = new Page<>(page, pageSize);
+        page(commentPage,
+                new LambdaQueryWrapper<Comment>()
+                        // 未删除
+                        .eq(Comment::getDeleted, false)
+                        // 已审核
+                        .eq(Comment::getStatus, 0)
+                        .orderByDesc(Comment::getCreateTime)
+        );
+        Page<CommentDTO> commentDTOPage = getCommentDTOPage(commentPage);
+        return Result.success(COMMENT_SELECT_SUCCESS, commentDTOPage);
+    }
+
+    @Override
+    public Result<Page<CommentDTO>> pageUnreviewedComment(Long page, Long pageSize) {
+        if (Objects.isNull(page) || Objects.isNull(pageSize)) {
+            return Result.failed(COMMENT_SELECT_FAILED, "非法参数");
+        }
+        Page<Comment> commentPage = new Page<>(page, pageSize);
+        page(commentPage,
+                new LambdaQueryWrapper<Comment>()
+                        // 未删除
+                        .eq(Comment::getDeleted, false)
+                        // 未审核
+                        .eq(Comment::getStatus, 1)
+                        .orderByDesc(Comment::getCreateTime)
+        );
+        Page<CommentDTO> commentDTOPage = getCommentDTOPage(commentPage);
+        return Result.success(COMMENT_SELECT_SUCCESS, commentDTOPage);
+    }
+
+    @Override
+    public Result<Page<CommentDTO>> pageDelComment(Long page, Long pageSize) {
+
+        if (Objects.isNull(page) || Objects.isNull(pageSize)) {
+            return Result.failed(COMMENT_SELECT_FAILED, "非法参数");
+        }
+        Page<Comment> commentPage = new Page<>(page, pageSize);
+        page(commentPage,
+                new LambdaQueryWrapper<Comment>()
+                        // 已删除
+                        .eq(Comment::getDeleted, true)
+                        .orderByDesc(Comment::getCreateTime)
+        );
+        Page<CommentDTO> commentDTOPage = getCommentDTOPage(commentPage);
+        return Result.success(COMMENT_SELECT_SUCCESS, commentDTOPage);
+    }
+
+    @Override
+    public Result<Page<CommentViewDTO>> pageCommentByArticleId(Long articleId, Long page, Long pageSize) {
+        if (Objects.isNull(page) || Objects.isNull(pageSize)) {
+            return Result.failed(COMMENT_SELECT_FAILED, "非法参数");
+        }
+        Page<Comment> commentPage = new Page<>(page, pageSize);
+        page(
+                commentPage,
+                new LambdaQueryWrapper<Comment>()
+                        .eq(Comment::getArticleId, articleId)
+                        // 未删除
+                        .eq(Comment::getDeleted, false)
+                        // 已审核
+                        .eq(Comment::getStatus, 0)
+                        // 非私密
+                        .eq(Comment::getSecret, false)
+                        .orderByDesc(Comment::getCreateTime)
+        );
+        Page<CommentViewDTO> commentViewDTOPage = getCommentViewDTO(commentPage);
+        return Result.success(COMMENT_SELECT_SUCCESS, commentViewDTOPage);
+    }
+
+    private Page<CommentViewDTO> getCommentViewDTO(Page<Comment> commentPage) {
+        Page<CommentViewDTO> commentViewDTOPage = new Page<>();
+        BeanUtils.copyProperties(commentPage, commentViewDTOPage, "records");
+        commentViewDTOPage.setRecords(commentPage.getRecords().stream().map(comment -> {
+            CommentViewDTO commentViewDTO = new CommentViewDTO();
+            BeanUtils.copyProperties(comment, commentViewDTO);
+            commentViewDTO.setSenderEmailMD5(DigestUtils.md5DigestAsHex(comment.getSenderEmail().toLowerCase().getBytes()));
+            return commentViewDTO;
+        }).toList());
+        return commentViewDTOPage;
+    }
+
+    private Page<CommentDTO> getCommentDTOPage(Page<Comment> commentPage) {
+        Page<CommentDTO> commentDTOPage = new Page<>();
+        BeanUtils.copyProperties(commentPage, commentDTOPage, "records");
+        commentDTOPage.setRecords(commentPage.getRecords().stream().map(comment -> {
+            CommentDTO commentDTO = new CommentDTO();
+            BeanUtils.copyProperties(comment, commentDTO);
+            return commentDTO;
+        }).toList());
+        return commentDTOPage;
     }
 
     /**

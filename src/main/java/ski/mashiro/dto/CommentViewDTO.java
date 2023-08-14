@@ -13,6 +13,8 @@ public class CommentViewDTO {
     private Long articleId;
     private String senderNickname;
     private String senderEmailMD5;
+    private String receiverNickname;
+    private String replyCommentId;
     private String content;
     private LocalDateTime createTime;
 }
