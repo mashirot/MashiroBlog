@@ -278,6 +278,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     private Page<ArticlePreviewDTO> getPreviewPageIn(Long page, Long pageSize, List<Long> articleIds) {
         Page<Article> articlePage = new Page<>(page, pageSize);
+        if (articleIds.isEmpty()) {
+            Page<ArticlePreviewDTO> dtoPage = new Page<>();
+            BeanUtils.copyProperties(articlePage, dtoPage, "records");
+            return dtoPage;
+        }
         page(articlePage, new LambdaQueryWrapper<Article>().eq(Article::getDeleted, false).in(Article::getId, articleIds).orderByDesc(Article::getCreateTime));
         Page<ArticlePreviewDTO> dtoPage = new Page<>();
         BeanUtils.copyProperties(articlePage, dtoPage, "records");
