@@ -38,31 +38,35 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(o -> o.configure(http))
                 .authorizeHttpRequests(authorize -> authorize
-                                // 登录
-                                .requestMatchers(HttpMethod.POST, "/admin/login").anonymous()
-                                .requestMatchers(
-                                        HttpMethod.GET,
-                                        new String[]{
-                                                // 统计信息
-                                                "/info",
-                                                // 文章详细，文章分页
-                                                "/article/**",
-                                                // tag查看文章
-                                                "/tag/**",
-                                                // category查看文章
-                                                "/category/**",
-                                                // 文章下评论
-                                                "/comment/art/**"
-                                        }
-                                ).permitAll()
-                                // 发布评论
-                                .requestMatchers(HttpMethod.POST, "/comment").permitAll()
-                                .anyRequest().authenticated()
+                        // 登录
+                        .requestMatchers(HttpMethod.POST, "/admin/login").anonymous()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                new String[]{
+                                        // 首页统计信息
+                                        "/info",
+                                        // 文章详细
+                                        "/article/*",
+                                        // 文章分页
+                                        "/article/page",
+                                        // tag查看文章
+                                        "/tag/*",
+                                        // category列表
+                                        "/category",
+                                        // category查看文章
+                                        "/category/*",
+                                        // 文章下评论
+                                        "/comment/art/*"
+                                }
+                        ).permitAll()
+                        // 发布评论
+                        .requestMatchers(HttpMethod.POST, "/comment").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-//                不通过Session获取SecurityContext
+                // 不通过Session获取SecurityContext
                 .sessionManagement(manage -> manage.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                异常处理
+                // 异常处理
                 .exceptionHandling(handler -> handler
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
