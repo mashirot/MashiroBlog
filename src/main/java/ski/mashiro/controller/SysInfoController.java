@@ -1,6 +1,7 @@
 package ski.mashiro.controller;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +28,7 @@ public class SysInfoController {
     @GetMapping
     public Result<SysInfoDTO> info() {
         SysInfo sysInfo = sysInfoService.list().get(0);
-        SysInfoDTO sysInfoDTO = new SysInfoDTO();
-        BeanUtils.copyProperties(sysInfo, sysInfoDTO);
+        SysInfoDTO sysInfoDTO = new SysInfoDTO(sysInfo.getOwnerNickname(), DigestUtils.md5DigestAsHex(sysInfo.getOwnerEmail().getBytes()), sysInfo.getOwnerProfile(), sysInfo.getRunDay());
         return Result.success(SYS_INFO_SUCCESS, sysInfoDTO);
     }
 
