@@ -32,9 +32,9 @@ public class CategoryController {
         return categoryService.save(category) ? Result.success(CATEGORY_INSERT_SUCCESS, null) : Result.failed(CATEGORY_INSERT_FAILED, "添加失败，Category重名");
     }
 
-    @DeleteMapping
-    public Result<String> delCategory(@RequestBody Category category) {
-        return categoryService.delCategory(category);
+    @DeleteMapping("/{categoryId}")
+    public Result<String> delCategory(@PathVariable("categoryId") Long categoryId) {
+        return categoryService.delCategory(categoryId);
     }
 
     @GetMapping
@@ -42,8 +42,15 @@ public class CategoryController {
         return Result.success(CATEGORY_SELECT_SUCCESS, categoryService.list());
     }
 
+    @GetMapping("/page")
+    public Result<Page<Category>> page(Long page, Long pageSize) {
+        Page<Category> categoryPage = new Page<>(page, pageSize);
+        categoryService.page(categoryPage);
+        return Result.success(CATEGORY_SELECT_SUCCESS, categoryPage);
+    }
+
     @GetMapping("/{categoryName}")
-    public Result<Page<ArticlePreviewDTO>> page(@PathVariable("categoryName") String categoryName, Long page, Long pageSize) {
+    public Result<Page<ArticlePreviewDTO>> pageArticle(@PathVariable("categoryName") String categoryName, Long page, Long pageSize) {
         return articleService.pageArticleByCategory(categoryName, page, pageSize);
     }
 }

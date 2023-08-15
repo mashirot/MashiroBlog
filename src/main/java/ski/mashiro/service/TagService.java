@@ -10,8 +10,8 @@ import ski.mashiro.entity.Tag;
 public interface TagService extends IService<Tag> {
     /**
      * 删除Tag并删除ArticleTag表中的关联行
-     * @param tagName Tag对象，包含Tag.name
+     * @param tagId tagId
      * @return 结果
      */
-    Result<String> delTag(Tag tagName);
+    Result<String> delTag(Long tagId);
 }

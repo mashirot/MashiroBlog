@@ -8,8 +8,7 @@ import ski.mashiro.entity.Tag;
 import ski.mashiro.service.ArticleService;
 import ski.mashiro.service.TagService;
 
-import static ski.mashiro.constant.StatusConstant.TAG_INSERT_FAILED;
-import static ski.mashiro.constant.StatusConstant.TAG_INSERT_SUCCESS;
+import static ski.mashiro.constant.StatusConstant.*;
 
 /**
  * @author MashiroT
@@ -31,9 +30,16 @@ public class TagController {
         return tagService.save(tag) ? Result.success(TAG_INSERT_SUCCESS, null) : Result.failed(TAG_INSERT_FAILED, "添加失败，Tag重名");
     }
 
-    @DeleteMapping
-    public Result<String> delTag(@RequestBody Tag tag) {
-        return tagService.delTag(tag);
+    @DeleteMapping("/{tagId}")
+    public Result<String> delTag(@PathVariable("tagId") Long tagId) {
+        return tagService.delTag(tagId);
+    }
+
+    @GetMapping("/page")
+    public Result<Page<Tag>> page(Long page, Long pageSize) {
+        Page<Tag> tagPage = new Page<>(page, pageSize);
+        tagService.page(tagPage);
+        return Result.success(TAG_SELECT_SUCCESS, tagPage);
     }
 
     @GetMapping("/{tagName}")

@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import ski.mashiro.common.Result;
 import ski.mashiro.entity.ArticleTag;
 import ski.mashiro.entity.Tag;
@@ -31,11 +30,11 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Result<String> delTag(Tag tag) {
-        if (Objects.isNull(tag) || !StringUtils.hasText(tag.getName())) {
+    public Result<String> delTag(Long tagId) {
+        if (Objects.isNull(tagId)) {
             return Result.failed(TAG_DELETE_FAILED, "非法参数");
         }
-        tag = getOne(new LambdaQueryWrapper<Tag>().eq(Tag::getName, tag.getName()));
+        var tag = getById(tagId);
         if (Objects.isNull(tag)) {
             return Result.failed(TAG_DELETE_FAILED, "删除失败，Tag不存在");
         }
