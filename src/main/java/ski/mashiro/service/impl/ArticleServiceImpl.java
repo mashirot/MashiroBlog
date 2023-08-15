@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ski.mashiro.constant.StatusConstant.*;
+import static ski.mashiro.constant.StatusConsts.*;
 
 /**
  * @author MashiroT

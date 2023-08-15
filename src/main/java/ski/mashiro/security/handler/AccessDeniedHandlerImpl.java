@@ -7,7 +7,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Service;
 import ski.mashiro.common.Result;
-import ski.mashiro.constant.StatusConstant;
+import ski.mashiro.constant.StatusConsts;
 
 import java.io.IOException;
 
@@ -28,6 +28,6 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
         response.setStatus(403);
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
-        response.getWriter().write(objectMapper.writeValueAsString(Result.failed(StatusConstant.ACCESS_DENIED, "无权访问")));
+        response.getWriter().write(objectMapper.writeValueAsString(Result.failed(StatusConsts.ACCESS_DENIED, "无权访问")));
     }
 }

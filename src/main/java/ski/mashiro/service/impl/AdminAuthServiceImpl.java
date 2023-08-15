@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static ski.mashiro.constant.RedisConstant.USER_JWT_KEY;
-import static ski.mashiro.constant.StatusConstant.*;
+import static ski.mashiro.constant.RedisConsts.USER_JWT_KEY;
+import static ski.mashiro.constant.StatusConsts.*;
 
 /**
  * @author MashiroT

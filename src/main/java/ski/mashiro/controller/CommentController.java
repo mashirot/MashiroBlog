@@ -12,8 +12,8 @@ import ski.mashiro.service.CommentService;
 
 import java.util.Objects;
 
-import static ski.mashiro.constant.StatusConstant.COMMENT_SELECT_FAILED;
-import static ski.mashiro.constant.StatusConstant.COMMENT_SELECT_SUCCESS;
+import static ski.mashiro.constant.StatusConsts.COMMENT_SELECT_FAILED;
+import static ski.mashiro.constant.StatusConsts.COMMENT_SELECT_SUCCESS;
 
 /**
  * @author MashiroT

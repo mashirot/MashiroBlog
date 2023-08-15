@@ -18,7 +18,7 @@ import ski.mashiro.util.JwtUtils;
 import java.io.IOException;
 import java.util.Objects;
 
-import static ski.mashiro.constant.RedisConstant.USER_JWT_KEY;
+import static ski.mashiro.constant.RedisConsts.USER_JWT_KEY;
 
 /**
  * @author MashiroT

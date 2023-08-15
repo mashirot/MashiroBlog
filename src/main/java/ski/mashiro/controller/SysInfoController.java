@@ -9,7 +9,7 @@ import ski.mashiro.dto.SysInfoDTO;
 import ski.mashiro.entity.SysInfo;
 import ski.mashiro.service.SysInfoService;
 
-import static ski.mashiro.constant.StatusConstant.SYS_INFO_SUCCESS;
+import static ski.mashiro.constant.StatusConsts.SYS_INFO_SUCCESS;
 
 /**
  * @author MashiroT

@@ -3,7 +3,7 @@ package ski.mashiro.constant;
 /**
  * @author MashiroT
  */
-public class StatusConstant {
+public class StatusConsts {
     public static final int SYS_ERR = 50000;
     public static final int SYS_INFO_SUCCESS = 50011;
     public static final int LOGIN_SUCCESS = 10011;

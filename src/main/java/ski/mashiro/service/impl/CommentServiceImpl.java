@@ -17,11 +17,12 @@ import ski.mashiro.entity.Comment;
 import ski.mashiro.mapper.CommentMapper;
 import ski.mashiro.service.ArticleService;
 import ski.mashiro.service.CommentService;
+import ski.mashiro.service.RabbitMQService;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import static ski.mashiro.constant.StatusConstant.*;
+import static ski.mashiro.constant.StatusConsts.*;
 
 /**
  * @author MashiroT
@@ -30,9 +31,11 @@ import static ski.mashiro.constant.StatusConstant.*;
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> implements CommentService {
 
     private final ArticleService articleService;
+    private final RabbitMQService rabbitMQService;
 
-    public CommentServiceImpl(ArticleService articleService) {
+    public CommentServiceImpl(ArticleService articleService, RabbitMQService rabbitMQService) {
         this.articleService = articleService;
+        this.rabbitMQService = rabbitMQService;
     }
 
     @Override
@@ -40,7 +43,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         if (Objects.isNull(commentDTO) || Objects.isNull(commentDTO.getArticleId())) {
             return Result.failed(COMMENT_INSERT_FAILED, "非法参数");
         }
-        if (articleService.count(new LambdaQueryWrapper<Article>().eq(Article::getId, commentDTO.getArticleId())) == 0) {
+        Article article = articleService.getById(commentDTO.getArticleId());
+        if (Objects.isNull(article)) {
             return Result.failed(COMMENT_INSERT_FAILED, "评论失败，文章不存在");
         }
         Comment comment = new Comment();
@@ -53,6 +57,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         comment.setDeleted(false);
         comment.setCreateTime(LocalDateTime.now());
         save(comment);
+        rabbitMQService.sendMessage2MailQueue(article.getTitle(), comment);
         return Result.success(COMMENT_INSERT_SUCCESS, null);
     }
 

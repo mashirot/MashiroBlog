@@ -7,7 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Service;
 import ski.mashiro.common.Result;
-import ski.mashiro.constant.StatusConstant;
+import ski.mashiro.constant.StatusConsts;
 
 import java.io.IOException;
 
@@ -28,6 +28,6 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
         response.setStatus(401);
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
-        response.getWriter().write(objectMapper.writeValueAsString(Result.failed(StatusConstant.LOGIN_FAILED, "认证失败，请登陆")));
+        response.getWriter().write(objectMapper.writeValueAsString(Result.failed(StatusConsts.LOGIN_FAILED, "认证失败，请登陆")));
     }
 }

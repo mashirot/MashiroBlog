@@ -13,8 +13,8 @@ import ski.mashiro.service.CategoryService;
 
 import java.util.Objects;
 
-import static ski.mashiro.constant.StatusConstant.CATEGORY_DELETE_FAILED;
-import static ski.mashiro.constant.StatusConstant.CATEGORY_DELETE_SUCCESS;
+import static ski.mashiro.constant.StatusConsts.CATEGORY_DELETE_FAILED;
+import static ski.mashiro.constant.StatusConsts.CATEGORY_DELETE_SUCCESS;
 
 /**
  * @author MashiroT

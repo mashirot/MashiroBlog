@@ -8,7 +8,7 @@ import ski.mashiro.entity.Tag;
 import ski.mashiro.service.ArticleService;
 import ski.mashiro.service.TagService;
 
-import static ski.mashiro.constant.StatusConstant.*;
+import static ski.mashiro.constant.StatusConsts.*;
 
 /**
  * @author MashiroT

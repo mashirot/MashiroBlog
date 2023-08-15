@@ -16,7 +16,7 @@ import ski.mashiro.entity.Admin;
 import ski.mashiro.service.AdminAuthService;
 import ski.mashiro.service.AdminService;
 
-import static ski.mashiro.constant.StatusConstant.*;
+import static ski.mashiro.constant.StatusConsts.*;
 
 /**
  * @author MashiroT

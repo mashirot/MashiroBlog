@@ -10,7 +10,7 @@ import ski.mashiro.service.CategoryService;
 
 import java.util.List;
 
-import static ski.mashiro.constant.StatusConstant.*;
+import static ski.mashiro.constant.StatusConsts.*;
 
 /**
  * @author MashiroT

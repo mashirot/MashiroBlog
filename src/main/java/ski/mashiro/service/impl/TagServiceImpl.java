@@ -13,8 +13,8 @@ import ski.mashiro.service.TagService;
 
 import java.util.Objects;
 
-import static ski.mashiro.constant.StatusConstant.TAG_DELETE_FAILED;
-import static ski.mashiro.constant.StatusConstant.TAG_DELETE_SUCCESS;
+import static ski.mashiro.constant.StatusConsts.TAG_DELETE_FAILED;
+import static ski.mashiro.constant.StatusConsts.TAG_DELETE_SUCCESS;
 
 /**
  * @author MashiroT
