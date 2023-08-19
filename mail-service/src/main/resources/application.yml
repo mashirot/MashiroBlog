@@ -8,10 +8,20 @@ spring:
     password: 123456
     virtual-host: /
   mail:
+    protocol: smtp
     host: smtp.office365.com
     port: 587
-    username: 1
-    password: 1
+    username: test@outlook.com
+    password: test
+    properties:
+      mail:
+#        debug: true
+        smtp:
+          starttls:
+            enable: true
+#          socks:
+#            host: 127.0.0.1
+#            port: 7890
 blog:
-  name: "Mashiro Blog"
-  mail: "1"
+  from: test
+  to: test
