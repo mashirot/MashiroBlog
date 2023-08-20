@@ -7,6 +7,8 @@ import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils
+import ski.mashiro.annotation.Slf4j
+import ski.mashiro.annotation.Slf4j.Companion.log
 import ski.mashiro.dto.CommentMailDTO
 import ski.mashiro.service.MailService
 import java.util.*
@@ -15,10 +17,12 @@ import java.util.*
  * @author MashiroT
  */
 @Service
+@Slf4j
 class MailServiceImpl(
     val objectMapper: ObjectMapper,
     val mailSender: JavaMailSender,
-    val freeMakerConfiguration: Configuration
+    val freeMakerConfiguration: Configuration,
+
 ) : MailService {
     @Value("\${blog.from}")
     private var from: String? = null
@@ -52,6 +56,7 @@ class MailServiceImpl(
             mimeMessageHelper.setSentDate(Date())
 
             mailSender.send(mimeMessage)
+            log.info("文章：${commentMailDTO.articleTitle} 收到新评论，已发送邮件通知")
         } catch (e: Exception) {
             e.printStackTrace()
         }
