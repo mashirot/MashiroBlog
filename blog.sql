@@ -11,7 +11,7 @@
  Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 04/08/2023 05:47:11
+ Date: 22/08/2023 05:23:30
 */
 
 SET NAMES utf8mb4;
@@ -27,6 +27,7 @@ CREATE TABLE `admin`  (
                           `password` char(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
                           `nickname` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
                           `email` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                          `profile` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
                           `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                           PRIMARY KEY (`id`) USING BTREE,
                           UNIQUE INDEX `admin_username_uq`(`username` ASC) USING BTREE
@@ -97,8 +98,8 @@ CREATE TABLE `comment`  (
                             `article_id` bigint NOT NULL,
                             `sender_nickname` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
                             `sender_email` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                            `receiver_nickname` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                            `receiver_email` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                            `receiver_nickname` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+                            `reply_comment_id` bigint NULL DEFAULT NULL,
                             `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
                             `sender_ip` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
                             `status` tinyint UNSIGNED NOT NULL COMMENT '0:正常 1:待审核',
@@ -127,6 +128,6 @@ CREATE TABLE `tag`  (
 -- View structure for sys_info
 -- ----------------------------
 DROP VIEW IF EXISTS `sys_info`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `sys_info` AS select (select count(0) from `article` where (`article`.`is_delete` = 0)) AS `(select count(*) from article where is_delete = 0)`,(select count(0) from `comment` where (`comment`.`is_delete` = 0)) AS `(select count(*) from comment where is_delete = 0)`,(select (to_days(now()) - to_days(`admin`.`create_time`)) from `admin`) AS `(select DATEDIFF(CURRENT_TIMESTAMP, create_time) from admin)`;
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `sys_info` AS select `t1`.`nickname` AS `nickname`,`t1`.`email` AS `email`,`t1`.`profile` AS `profile`,`t2`.`count` AS `count`,`t3`.`count` AS `count`,`t4`.`count` AS `count`,`t5`.`count` AS `count`,`t6`.`count` AS `count`,`t7`.`run_day` AS `run_day` from (((((((select `admin`.`nickname` AS `nickname`,`admin`.`email` AS `email`,`admin`.`profile` AS `profile` from `admin`) `t1` join (select count(0) AS `count` from `article` where (`article`.`is_delete` = 0)) `t2`) join (select count(0) AS `count` from `comment` where ((`comment`.`is_delete` = 0) and (`comment`.`status` = 0))) `t3`) join (select count(0) AS `count` from `comment` where ((`comment`.`is_delete` = 0) and (`comment`.`status` = 1))) `t4`) join (select count(0) AS `count` from `category`) `t5`) join (select count(0) AS `count` from `tag`) `t6`) join (select (to_days(now()) - to_days(`admin`.`create_time`)) AS `run_day` from `admin`) `t7`);
 
 SET FOREIGN_KEY_CHECKS = 1;
