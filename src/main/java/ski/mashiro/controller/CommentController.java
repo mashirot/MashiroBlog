@@ -1,11 +1,11 @@
 package ski.mashiro.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 import ski.mashiro.common.Result;
 import ski.mashiro.dto.CommentDTO;
-import ski.mashiro.dto.CommentUpdateDTO;
 import ski.mashiro.dto.CommentViewDTO;
 import ski.mashiro.entity.Comment;
 import ski.mashiro.service.CommentService;
@@ -43,11 +43,6 @@ public class CommentController {
         return commentService.recoverComment(commentId);
     }
 
-    @PutMapping
-    public Result<String> updComment(@RequestBody CommentUpdateDTO commentUpdateDTO) {
-        return commentService.updComment(commentUpdateDTO);
-    }
-
     @PutMapping("/review/{commentId}")
     public Result<String> reviewComment(@PathVariable("commentId") Long commentId) {
         return commentService.reviewComment(commentId);
@@ -75,7 +70,7 @@ public class CommentController {
     }
 
     @GetMapping("/art/{articleId}")
-    public Result<Page<CommentViewDTO>> pageCommentByArticleId(@PathVariable("articleId") Long articleId, Long page, Long pageSize) {
+    public Result<Page<CommentViewDTO>> pageCommentByArticleId(@PathVariable("articleId") Long articleId, Long page, Long pageSize) throws JsonProcessingException {
         return commentService.pageCommentByArticleId(articleId, page, pageSize);
     }
 }

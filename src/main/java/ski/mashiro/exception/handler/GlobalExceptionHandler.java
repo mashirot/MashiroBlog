@@ -27,7 +27,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public Result<String> securityExceptionHandler(AuthenticationException e) {
         log.error("{}: {}", e.getClass(), e.getMessage());
-        log.error("{}", e.getCause().getMessage());
         return Result.failed(ACCESS_DENIED, e.getMessage());
     }
 

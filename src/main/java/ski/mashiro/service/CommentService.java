@@ -2,9 +2,9 @@ package ski.mashiro.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import ski.mashiro.common.Result;
 import ski.mashiro.dto.CommentDTO;
-import ski.mashiro.dto.CommentUpdateDTO;
 import ski.mashiro.dto.CommentViewDTO;
 import ski.mashiro.entity.Comment;
 
@@ -36,13 +36,6 @@ public interface CommentService extends IService<Comment> {
      * @return 结果
      */
     Result<String> recoverComment(Long commentId);
-
-    /**
-     * 更新评论
-     * @param commentUpdateDTO 更新DTO，id不为空，不包含deleted
-     * @return 结果
-     */
-    Result<String> updComment(CommentUpdateDTO commentUpdateDTO);
 
     /**
      * 审核评论
@@ -82,5 +75,5 @@ public interface CommentService extends IService<Comment> {
      * @param pageSize 页大小
      * @return 结果
      */
-    Result<Page<CommentViewDTO>> pageCommentByArticleId(Long articleId, Long page, Long pageSize);
+    Result<Page<CommentViewDTO>> pageCommentByArticleId(Long articleId, Long page, Long pageSize) throws JsonProcessingException;
 }

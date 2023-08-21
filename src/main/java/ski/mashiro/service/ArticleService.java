@@ -2,6 +2,7 @@ package ski.mashiro.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import ski.mashiro.common.Result;
 import ski.mashiro.dto.ArticleDTO;
 import ski.mashiro.dto.ArticlePreviewDTO;
@@ -44,7 +45,7 @@ public interface ArticleService extends IService<Article> {
      * @param articleId 文章Id
      * @return 文章DTO
      */
-    Result<ArticleDTO> getArticleByArticleId(Long articleId);
+    Result<ArticleDTO> getArticleByArticleId(Long articleId) throws JsonProcessingException;
 
     /**
      * 不加条件获取有效文章并分页，按照创建时间降序

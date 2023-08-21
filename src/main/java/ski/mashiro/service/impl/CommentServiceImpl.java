@@ -4,13 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import ski.mashiro.common.Result;
 import ski.mashiro.dto.CommentDTO;
-import ski.mashiro.dto.CommentUpdateDTO;
 import ski.mashiro.dto.CommentViewDTO;
 import ski.mashiro.entity.Article;
 import ski.mashiro.entity.Comment;
@@ -18,10 +18,13 @@ import ski.mashiro.mapper.CommentMapper;
 import ski.mashiro.service.ArticleService;
 import ski.mashiro.service.CommentService;
 import ski.mashiro.service.RabbitMQService;
+import ski.mashiro.util.RedisUtils;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
+import static ski.mashiro.constant.RedisConsts.*;
 import static ski.mashiro.constant.StatusConsts.*;
 
 /**
@@ -32,10 +35,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
     private final ArticleService articleService;
     private final RabbitMQService rabbitMQService;
+    private final RedisUtils redisUtils;
 
-    public CommentServiceImpl(ArticleService articleService, RabbitMQService rabbitMQService) {
+    public CommentServiceImpl(ArticleService articleService, RabbitMQService rabbitMQService, RedisUtils redisUtils) {
         this.articleService = articleService;
         this.rabbitMQService = rabbitMQService;
+        this.redisUtils = redisUtils;
     }
 
     @Override
@@ -75,6 +80,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 .set(Comment::getDeleted, true)
                 .eq(Comment::getId, comment.getId()));
         minusArticleCommentCount(comment.getArticleId());
+        redisUtils.delete(COMMENT_ARTICLE_KEY + comment.getArticleId());
         return Result.success(COMMENT_DELETE_SUCCESS, null);
     }
 
@@ -91,20 +97,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 .set(Comment::getDeleted, false)
                 .eq(Comment::getId, comment.getId()));
         plusArticleCommentCount(comment.getArticleId());
+        redisUtils.delete(COMMENT_ARTICLE_KEY + comment.getArticleId());
         return Result.success(COMMENT_UPDATE_SUCCESS, null);
-    }
-
-    @Override
-    public Result<String> updComment(CommentUpdateDTO commentUpdateDTO) {
-        if (Objects.isNull(commentUpdateDTO) || Objects.isNull(commentUpdateDTO.getId())) {
-            return Result.failed(COMMENT_UPDATE_FAILED, "非法参数");
-        }
-        return update(new LambdaUpdateWrapper<Comment>()
-                .set(Objects.nonNull(commentUpdateDTO.getContent()), Comment::getContent, commentUpdateDTO.getContent())
-                .set(Objects.nonNull(commentUpdateDTO.getStatus()), Comment::getStatus, commentUpdateDTO.getStatus())
-                .set(Objects.nonNull(commentUpdateDTO.getSecret()), Comment::getSecret, commentUpdateDTO.getSecret())
-                .eq(Comment::getId, commentUpdateDTO.getId())
-        ) ? Result.success(COMMENT_UPDATE_SUCCESS, null) : Result.failed(COMMENT_UPDATE_FAILED, "更新失败，评论不存在");
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -119,6 +113,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         }
         update(new LambdaUpdateWrapper<Comment>().set(Comment::getStatus, 0).eq(Comment::getId, comment.getId()));
         plusArticleCommentCount(comment.getArticleId());
+        redisUtils.delete(COMMENT_ARTICLE_KEY + comment.getArticleId());
         return Result.success(COMMENT_UPDATE_SUCCESS, null);
     }
 
@@ -176,22 +171,31 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     }
 
     @Override
-    public Result<Page<CommentViewDTO>> pageCommentByArticleId(Long articleId, Long page, Long pageSize) {
+    public Result<Page<CommentViewDTO>> pageCommentByArticleId(Long articleId, Long page, Long pageSize) throws JsonProcessingException {
         if (Objects.isNull(page) || Objects.isNull(pageSize)) {
             return Result.failed(COMMENT_SELECT_FAILED, "非法参数");
         }
-        Page<Comment> commentPage = new Page<>(page, pageSize);
-        page(
-                commentPage,
-                new LambdaQueryWrapper<Comment>()
-                        .eq(Comment::getArticleId, articleId)
-                        // 未删除
-                        .eq(Comment::getDeleted, false)
-                        // 已审核
-                        .eq(Comment::getStatus, 0)
-                        // 非私密
-                        .eq(Comment::getSecret, false)
-                        .orderByDesc(Comment::getCreateTime)
+        Page<Comment> commentPage
+                = redisUtils.getOrSetCache(
+                COMMENT_ARTICLE_KEY + articleId + COMMENT_ARTICLE_PAGE_KEY + page,
+                articleId,
+                Page.class,
+                Comment.class,
+                COMMENT_ARTICLE_TTL,
+                TimeUnit.SECONDS,
+                (id) ->
+                        page(
+                                new Page<>(page, pageSize),
+                                new LambdaQueryWrapper<Comment>()
+                                        .eq(Comment::getArticleId, id)
+                                        // 未删除
+                                        .eq(Comment::getDeleted, false)
+                                        // 已审核
+                                        .eq(Comment::getStatus, 0)
+                                        // 非私密
+                                        .eq(Comment::getSecret, false)
+                                        .orderByDesc(Comment::getCreateTime)
+                        )
         );
         Page<CommentViewDTO> commentViewDTOPage = getCommentViewDTO(commentPage);
         return Result.success(COMMENT_SELECT_SUCCESS, commentViewDTOPage);

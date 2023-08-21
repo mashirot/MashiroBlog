@@ -1,15 +1,19 @@
 package ski.mashiro.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.bind.annotation.*;
 import ski.mashiro.common.Result;
 import ski.mashiro.dto.ArticlePreviewDTO;
 import ski.mashiro.entity.Category;
 import ski.mashiro.service.ArticleService;
 import ski.mashiro.service.CategoryService;
+import ski.mashiro.util.RedisUtils;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import static ski.mashiro.constant.RedisConsts.*;
 import static ski.mashiro.constant.StatusConsts.*;
 
 /**
@@ -21,10 +25,12 @@ public class CategoryController {
 
     private final CategoryService categoryService;
     private final ArticleService articleService;
+    private final RedisUtils redisUtils;
 
-    public CategoryController(CategoryService categoryService, ArticleService articleService) {
+    public CategoryController(CategoryService categoryService, ArticleService articleService, RedisUtils redisUtils) {
         this.categoryService = categoryService;
         this.articleService = articleService;
+        this.redisUtils = redisUtils;
     }
 
     @PostMapping
@@ -38,8 +44,9 @@ public class CategoryController {
     }
 
     @GetMapping
-    public Result<List<Category>> listCategory() {
-        return Result.success(CATEGORY_SELECT_SUCCESS, categoryService.list());
+    public Result<List<Category>> listCategory() throws JsonProcessingException {
+        List<Category> categories = redisUtils.getOrSetCache(CATEGORY_KEY, "", List.class, Category.class, CATEGORY_LIST_TTL, TimeUnit.SECONDS, (ignore) -> categoryService.list());
+        return Result.success(CATEGORY_SELECT_SUCCESS, categories);
     }
 
     @GetMapping("/page")

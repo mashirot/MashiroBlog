@@ -1,6 +1,7 @@
 package ski.mashiro.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.bind.annotation.*;
 import ski.mashiro.common.Result;
 import ski.mashiro.dto.ArticleDTO;
@@ -40,7 +41,7 @@ public class ArticleController {
     }
 
     @GetMapping("/{articleId}")
-    public Result<ArticleDTO> getArticleByArticleId(@PathVariable("articleId") Long articleId) {
+    public Result<ArticleDTO> getArticleByArticleId(@PathVariable("articleId") Long articleId) throws JsonProcessingException {
         return articleService.getArticleByArticleId(articleId);
     }
 

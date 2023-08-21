@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -16,11 +17,18 @@ import ski.mashiro.dto.ArticlePreviewDTO;
 import ski.mashiro.entity.*;
 import ski.mashiro.mapper.ArticleMapper;
 import ski.mashiro.service.*;
+import ski.mashiro.util.RedisUtils;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static ski.mashiro.constant.RedisConsts.ARTICLE_CACHE_KEY;
+import static ski.mashiro.constant.RedisConsts.ARTICLE_CACHE_TTL;
 import static ski.mashiro.constant.StatusConsts.*;
 
 /**
@@ -34,15 +42,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final ArticleTagService articleTagService;
     private final ArticleCategoryService articleCategoryService;
     private final ArticleCommentService articleCommentService;
+    private final RedisUtils redisUtils;
 
     public static final int PREVIEW_CONTENT_LENGTH = 200;
 
-    public ArticleServiceImpl(TagService tagService, CategoryService categoryService, ArticleTagService articleTagService, ArticleCategoryService articleCategoryService, ArticleCommentService articleCommentService) {
+    public ArticleServiceImpl(TagService tagService, CategoryService categoryService, ArticleTagService articleTagService, ArticleCategoryService articleCategoryService, ArticleCommentService articleCommentService, RedisUtils redisUtils) {
         this.tagService = tagService;
         this.categoryService = categoryService;
         this.articleTagService = articleTagService;
         this.articleCategoryService = articleCategoryService;
         this.articleCommentService = articleCommentService;
+        this.redisUtils = redisUtils;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -85,6 +95,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (Objects.isNull(article)) {
             return Result.failed(ARTICLE_DELETE_FAILED, "删除失败，Article不存在");
         }
+        redisUtils.delete(ARTICLE_CACHE_KEY + articleId);
         update(new LambdaUpdateWrapper<Article>()
                 .set(Article::getDeleted, true)
                 .set(Article::getUpdateTime, LocalDateTime.now())
@@ -124,15 +135,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (Objects.isNull(article)) {
             return Result.failed(ARTICLE_UPDATE_FAILED, "删除失败，Article不存在");
         }
+        Long articleId = article.getId();
+
+        redisUtils.delete(ARTICLE_CACHE_KEY + articleId);
+
         article.setTitle(articleDTO.getTitle());
         article.setContent(articleDTO.getContent());
         article.setUpdateTime(LocalDateTime.now());
         updateById(article);
 
-        Long articleId = article.getId();
-
         if (Objects.nonNull(articleDTO.getTag())) {
-//            先删再加
+            // 先删再加
             articleTagService.remove(new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getArticleId, articleId));
             addRelationTags(articleDTO, articleId);
         }
@@ -146,11 +159,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public Result<ArticleDTO> getArticleByArticleId(Long articleId) {
+    public Result<ArticleDTO> getArticleByArticleId(Long articleId) throws JsonProcessingException {
         if (Objects.isNull(articleId)) {
             return Result.failed(ARTICLE_SELECT_FAILED, "非法参数");
         }
-        Article article = getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, articleId).eq(Article::getDeleted, false));
+        Article article = redisUtils.getOrSetCache(ARTICLE_CACHE_KEY + articleId, articleId, Article.class, ARTICLE_CACHE_TTL, TimeUnit.SECONDS,
+                (id) -> getOne(new LambdaQueryWrapper<Article>().eq(Article::getId, id).eq(Article::getDeleted, false))
+        );
         if (Objects.isNull(article)) {
             return Result.failed(ARTICLE_SELECT_FAILED, "Article不存在");
         }
