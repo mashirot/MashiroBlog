@@ -35,6 +35,22 @@ public class AdminController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * 仅能请求一次
+     * @return 结果
+     */
+    @PostMapping("/reg")
+    public Result<String> reg(@RequestBody Admin admin) {
+        if (adminService.count() > 0) {
+            return Result.failed(REG_FAILED, "已经存在管理员用户");
+        }
+        admin.setId(null);
+        if (adminService.save(admin)) {
+            return Result.success(REG_SUCCESS, "注册成功");
+        }
+        return Result.failed(REG_FAILED, "请检查用户约束条件是否满足");
+    }
+
     @PostMapping("/login")
     public Result<AdminDTO> login(@RequestBody AdminLoginDTO adminLoginDTO) {
         return adminAuthService.login(adminLoginDTO);

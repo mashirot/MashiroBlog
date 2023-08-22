@@ -6,6 +6,8 @@ package ski.mashiro.constant;
 public class StatusConsts {
     public static final int SYS_ERR = 50000;
     public static final int SYS_INFO_SUCCESS = 50011;
+    public static final int REG_SUCCESS = 10001;
+    public static final int REG_FAILED = 10000;
     public static final int LOGIN_SUCCESS = 10011;
     public static final int LOGIN_FAILED = 10010;
     public static final int ACCESS_DENIED = 10012;

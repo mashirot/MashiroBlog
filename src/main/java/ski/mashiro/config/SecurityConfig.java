@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // 登录
                         .requestMatchers(HttpMethod.POST, "/admin/login").anonymous()
+                        .requestMatchers(HttpMethod.POST, "/admin/reg").anonymous()
                         .requestMatchers(
                                 HttpMethod.GET,
                                 new String[]{
