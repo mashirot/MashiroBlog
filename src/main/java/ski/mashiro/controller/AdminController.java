@@ -16,6 +16,8 @@ import ski.mashiro.entity.Admin;
 import ski.mashiro.service.AdminAuthService;
 import ski.mashiro.service.AdminService;
 
+import java.time.LocalDateTime;
+
 import static ski.mashiro.constant.StatusConsts.*;
 
 /**
@@ -45,6 +47,8 @@ public class AdminController {
             return Result.failed(REG_FAILED, "已经存在管理员用户");
         }
         admin.setId(null);
+        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        admin.setCreateTime(LocalDateTime.now());
         if (adminService.save(admin)) {
             return Result.success(REG_SUCCESS, "注册成功");
         }

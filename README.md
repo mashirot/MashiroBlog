@@ -11,19 +11,31 @@
 
 1. clone项目
 
-    `git clone https://github.com/mashirot/MashiroBlog.git`
+   `git clone https://github.com/mashirot/MashiroBlog.git`
 
 2. 配置
 
-   1. 分别配置`src/main/resources/application.yml`和`mail-service/src/main/resources/application.yml`
+   配置`src/main/resources/application.yml`和`mail-service/src/main/resources/application.yml`
 
-   2. 修改`src/main/java/ski/mashiro/config/WebMvcConfig.java`中的前端地址，或用`*`代替（不推荐）
-   
-3. 数据库初始化，设置管理员
-    
-   1. 执行`blog.sql`
-   2. 修改`src/test/java/ski/mashiro/MashiroBlogApplicationTests.java`中的`insertUser`方法内容，
-   除id外修改为你的，并运行测试，通过即为成功，请不要添加超过**1**个用户
+3. 数据库初始化，
+
+    执行`blog.sql`
 
 4. 打包
+
+   `gradle build -x test`
+
 5. 运行（JDK17+）
+
+6. 设置管理员
+
+   向后端`/admin/reg`接口发送POST请求，携带如下JSON请求体
+   ```json
+   {
+   "username": "mashiro",
+   "password": "123456",
+   "nickname": "Shiina",
+   "email": "ShiinaMashiro@sakurasou.com",
+   "profile": "ねぇ，あなたは何色になりたい?"
+   }
+   ```

@@ -1,5 +1,6 @@
 package ski.mashiro.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -10,10 +11,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
+    @Value("${cors.allow-origin-patterns}")
+    private String originPatterns;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("http://127.0.0.1:7070")
+                .allowedOriginPatterns(originPatterns)
                 .allowedHeaders("*")
                 .allowedMethods("*")
                 .allowCredentials(true);
