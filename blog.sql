@@ -127,7 +127,25 @@ CREATE TABLE `tag`  (
 -- ----------------------------
 -- View structure for sys_info
 -- ----------------------------
-DROP VIEW IF EXISTS `sys_info`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `sys_info` AS select `t1`.`nickname` AS `nickname`,`t1`.`email` AS `email`,`t1`.`profile` AS `profile`,`t2`.`count` AS `count`,`t3`.`count` AS `count`,`t4`.`count` AS `count`,`t5`.`count` AS `count`,`t6`.`count` AS `count`,`t7`.`run_day` AS `run_day` from (((((((select `admin`.`nickname` AS `nickname`,`admin`.`email` AS `email`,`admin`.`profile` AS `profile` from `admin`) `t1` join (select count(0) AS `count` from `article` where (`article`.`is_delete` = 0)) `t2`) join (select count(0) AS `count` from `comment` where ((`comment`.`is_delete` = 0) and (`comment`.`status` = 0))) `t3`) join (select count(0) AS `count` from `comment` where ((`comment`.`is_delete` = 0) and (`comment`.`status` = 1))) `t4`) join (select count(0) AS `count` from `category`) `t5`) join (select count(0) AS `count` from `tag`) `t6`) join (select (to_days(now()) - to_days(`admin`.`create_time`)) AS `run_day` from `admin`) `t7`);
+create or replace view sys_info
+            (owner_nickname, owner_email, owner_profile, article_count, comment_count, un_review_comment_count, category_count, tag_count,
+             run_day)
+as
+select t1.nickname,
+       t1.email,
+       t1.profile,
+       t2.count,
+       t3.count,
+       t4.count,
+       t5.count,
+       t6.count,
+       t7.run_day
+from (select nickname, email, profile from admin) t1,
+     (select count(*) 'count' from article where is_delete = 0) t2,
+     (select count(*) 'count' from comment where is_delete = 0 and status = 0) t3,
+     (select count(*) 'count' from comment where is_delete = 0 and status = 1) t4,
+     (select count(*) 'count' from category) t5,
+     (select count(*) 'count' from tag) t6,
+     (select DATEDIFF(CURRENT_TIMESTAMP, create_time) 'run_day' from admin) t7;
 
 SET FOREIGN_KEY_CHECKS = 1;
