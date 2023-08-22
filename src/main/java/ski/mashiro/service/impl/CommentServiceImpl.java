@@ -80,7 +80,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 .set(Comment::getDeleted, true)
                 .eq(Comment::getId, comment.getId()));
         minusArticleCommentCount(comment.getArticleId());
-        redisUtils.delete(COMMENT_ARTICLE_KEY + comment.getArticleId());
+        redisUtils.deleteBatch(COMMENT_ARTICLE_KEY + comment.getArticleId());
         return Result.success(COMMENT_DELETE_SUCCESS, null);
     }
 
@@ -97,7 +97,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 .set(Comment::getDeleted, false)
                 .eq(Comment::getId, comment.getId()));
         plusArticleCommentCount(comment.getArticleId());
-        redisUtils.delete(COMMENT_ARTICLE_KEY + comment.getArticleId());
+        redisUtils.deleteBatch(COMMENT_ARTICLE_KEY + comment.getArticleId());
         return Result.success(COMMENT_UPDATE_SUCCESS, null);
     }
 
@@ -113,7 +113,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         }
         update(new LambdaUpdateWrapper<Comment>().set(Comment::getStatus, 0).eq(Comment::getId, comment.getId()));
         plusArticleCommentCount(comment.getArticleId());
-        redisUtils.delete(COMMENT_ARTICLE_KEY + comment.getArticleId());
+        redisUtils.deleteBatch(COMMENT_ARTICLE_KEY + comment.getArticleId());
         return Result.success(COMMENT_UPDATE_SUCCESS, null);
     }
 

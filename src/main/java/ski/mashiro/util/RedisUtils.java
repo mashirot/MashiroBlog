@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -68,5 +69,19 @@ public class RedisUtils {
 
     public void delete(String key) {
         redisTemplate.delete(key);
+    }
+
+    /**
+     * 大数据量慎用
+     * @param parentKey 前缀Key
+     */
+    public void deleteBatch(String parentKey) {
+        Set<String> keys = redisTemplate.keys(parentKey + ":*");
+        if (Objects.isNull(keys) || keys.isEmpty()) {
+            return;
+        }
+        for (String key : keys) {
+            redisTemplate.delete(key);
+        }
     }
 }
