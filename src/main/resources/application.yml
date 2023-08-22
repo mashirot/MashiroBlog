@@ -29,4 +29,4 @@ logging:
     ski.mashiro: info
     ski.mashiro.mapper: debug
 cors:
-  allow-origin-patterns: http://127.0.0.1
+  allow-origin-patterns: http://127.0.0.1:7070

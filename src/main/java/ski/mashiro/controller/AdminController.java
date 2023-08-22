@@ -15,9 +15,11 @@ import ski.mashiro.dto.AdminUpdateDTO;
 import ski.mashiro.entity.Admin;
 import ski.mashiro.service.AdminAuthService;
 import ski.mashiro.service.AdminService;
+import ski.mashiro.util.RedisUtils;
 
 import java.time.LocalDateTime;
 
+import static ski.mashiro.constant.RedisConsts.SYS_INFO_KEY;
 import static ski.mashiro.constant.StatusConsts.*;
 
 /**
@@ -30,11 +32,13 @@ public class AdminController {
     private final AdminAuthService adminAuthService;
     private final AdminService adminService;
     private final PasswordEncoder passwordEncoder;
+    private final RedisUtils redisUtils;
 
-    public AdminController(AdminAuthService adminAuthService, AdminService adminService, PasswordEncoder passwordEncoder) {
+    public AdminController(AdminAuthService adminAuthService, AdminService adminService, PasswordEncoder passwordEncoder, RedisUtils redisUtils) {
         this.adminAuthService = adminAuthService;
         this.adminService = adminService;
         this.passwordEncoder = passwordEncoder;
+        this.redisUtils = redisUtils;
     }
 
     /**
@@ -74,6 +78,7 @@ public class AdminController {
                 .set(StringUtils.hasText(adminUpdateDTO.getEmail()), Admin::getEmail, adminUpdateDTO.getEmail())
                 .set(StringUtils.hasText(adminUpdateDTO.getProfile()), Admin::getProfile, adminUpdateDTO.getProfile())
                 .eq(Admin::getId, jwtInfo.id());
+        redisUtils.delete(SYS_INFO_KEY);
         return adminService.update(updateWrapper) ? Result.success(ADMIN_UPDATE_SUCCESS, null) : Result.failed(ADMIN_UPDATE_FAILED, "更新失败，请检查后端日志");
     }
 

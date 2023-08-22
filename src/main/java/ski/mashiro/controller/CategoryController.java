@@ -35,11 +35,13 @@ public class CategoryController {
 
     @PostMapping
     public Result<String> addCategory(@RequestBody Category category) {
+        redisUtils.delete(CATEGORY_KEY);
         return categoryService.save(category) ? Result.success(CATEGORY_INSERT_SUCCESS, null) : Result.failed(CATEGORY_INSERT_FAILED, "添加失败，Category重名");
     }
 
     @DeleteMapping("/{categoryId}")
     public Result<String> delCategory(@PathVariable("categoryId") Long categoryId) {
+        redisUtils.delete(CATEGORY_KEY);
         return categoryService.delCategory(categoryId);
     }
 
